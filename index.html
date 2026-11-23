@@ -42,6 +42,12 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans A
 header.bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:20px 0 14px}
 header.bar h1{margin:0;font-size:19px}
 .sub{font-size:13px;color:var(--mut)}
+.sbox{position:relative}
+.slist{position:absolute;z-index:30;left:0;right:0;top:52px;background:#fff;border:1px solid #C8D1CC;border-radius:12px;max-height:300px;overflow:auto;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.slist button{display:flex;justify-content:space-between;gap:8px;width:100%;text-align:right;padding:12px 14px;border:0;border-bottom:1px solid #EEF1EF;background:none;font:inherit;font-size:15px;color:var(--ink);cursor:pointer}
+.slist button:hover,.slist button:focus{background:#EEF5F1;outline:none}
+.slist button span{font-size:12px;color:var(--mut)}
+.slist .none{padding:12px 14px;color:var(--mut);font-size:14px}
 .iconbtn{min-width:44px;height:44px;border-radius:14px;background:#fff;border:1px solid #DDE3E0;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 12px;font:inherit;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer}
 .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px}
 .card h2{margin:0 0 10px;font-size:15px}
@@ -438,8 +444,9 @@ body.dark .balance{background:#0B5A41}
     <div class="apane hidden" data-pane="settle">
     <div class="card">
       <h2>تصفية عهدة</h2>
-      <label class="f" for="pUser">اختر المشرف</label>
-      <select id="pUser"></select>
+      <label class="f" for="pFind">اختر المشرف</label>
+      <div class="sbox"><input id="pFind" type="search" placeholder="اكتب أي حرف من اسم المشرف…" autocomplete="off"><div id="pList" class="slist hidden" role="listbox"></div></div>
+      <select id="pUser" class="hidden" aria-hidden="true"></select>
       <div class="two">
         <div><label class="f" for="pFrom">من تاريخ</label><input id="pFrom" type="date"></div>
         <div><label class="f" for="pTo">إلى تاريخ</label><input id="pTo" type="date"></div>
@@ -1339,6 +1346,25 @@ $('pBtn').addEventListener('click', async () => {
   } catch (e) { note($('pResult'), 'err', e.message); }
   busy(b, false);
 });
+const normAr = (s) => String(s || '').toLowerCase().replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/[ًٌٍَُِّْـ]/g, '').replace(/\s+/g, ' ').trim();
+function renderFind(showAll) {
+  const q = normAr($('pFind').value);
+  const opts = [...$('pUser').querySelectorAll('option')].filter(o => o.value).map(o => ({ v: o.value, t: o.textContent, g: o.parentElement.label || '' }));
+  const hits = opts.filter(o => showAll || !q || normAr(o.t).includes(q) || normAr(o.v).includes(q));
+  $('pList').innerHTML = hits.length ? hits.slice(0, 60).map(o => `<button type="button" data-v="${esc(o.v)}">${esc(o.t)}<span>${esc(o.g)}</span></button>`).join('') : '<div class="none">لا يوجد مشرف بهذا الاسم</div>';
+  $('pList').classList.remove('hidden');
+}
+$('pFind').addEventListener('focus', () => renderFind(!$('pUser').value ? false : true));
+$('pFind').addEventListener('input', () => {
+  if ($('pUser').value) { $('pUser').value = ''; $('pResult').innerHTML = ''; }
+  renderFind(false);
+});
+$('pList').addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-v]'); if (!b) return;
+  $('pUser').value = b.dataset.v; $('pFind').value = $('pUser').selectedOptions[0].textContent;
+  $('pList').classList.add('hidden'); $('pUser').dispatchEvent(new Event('change'));
+});
+document.addEventListener('click', (e) => { if (!e.target.closest('.sbox')) $('pList').classList.add('hidden'); });
 ['pUser', 'pFrom', 'pTo', 'pOpen'].forEach(id => $(id).addEventListener('change', () => {
   if ($('pUser').value) $('pBtn').click(); else $('pResult').innerHTML = '';
 }));
