@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B6E4F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>مصروفات العهد</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--g:#0B6E4F;--g2:#08523B;--gl:#E3F1EB;--ink:#0F1B2D;--mut:#4A5868;--bg:#F4F6F5;--line:#E6EBE8;--red:#B42318;--warn:#93370D;--warnbg:#FFF1DC}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+.app{max-width:480px;margin:0 auto;min-height:100vh;padding:0 16px 40px}
+.hidden{display:none!important}
+header.bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:20px 0 14px}
+header.bar h1{margin:0;font-size:19px}
+.sub{font-size:13px;color:var(--mut)}
+.iconbtn{min-width:44px;height:44px;border-radius:14px;background:#fff;border:1px solid #DDE3E0;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 12px;font:inherit;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px}
+.card h2{margin:0 0 10px;font-size:15px}
+.balance{background:var(--g);color:#fff;border-radius:22px;padding:20px;margin-bottom:14px}
+.balance .big{font-size:38px;font-weight:700;letter-spacing:-.5px}
+.balance .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.balance .grid div{background:rgba(255,255,255,.13);border-radius:14px;padding:10px 12px;font-size:12px}
+.balance .grid b{display:block;font-size:16px;margin-top:2px}
+.pill{display:inline-block;font-size:12px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.16)}
+.addbtn{display:flex;align-items:center;gap:14px;width:100%;min-height:76px;border-radius:20px;background:#fff;border:2px dashed var(--g);padding:14px 16px;font:inherit;color:var(--ink);text-align:right;cursor:pointer;margin-bottom:18px}
+.addbtn .ic{width:48px;height:48px;border-radius:14px;background:var(--gl);color:var(--g);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.addbtn b{display:block;font-size:17px}
+.row{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:8px;width:100%;font:inherit;color:inherit;text-align:right}
+button.row{cursor:pointer}
+.row .t{flex:1;min-width:0}
+.row .t b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .amt{font-weight:700;color:var(--red);direction:ltr}
+.tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--gl);color:var(--g2)}
+.tag.done{background:#EEF1EF;color:var(--mut)}
+label.f{display:block;font-size:13px;color:var(--mut);margin:12px 0 6px}
+input,select,textarea{width:100%;height:48px;border-radius:12px;border:1px solid #C8D1CC;padding:0 12px;font:inherit;font-size:16px;color:var(--ink);background:#FAFBFA}
+textarea{height:auto;min-height:84px;padding:10px 12px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--g);outline-offset:1px}
+input[dir=ltr]{text-align:right}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{width:100%;min-height:54px;border:0;border-radius:16px;background:var(--g);color:#fff;font:inherit;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn:disabled{background:#D5DCD8;color:var(--mut)}
+.btn.sec{background:#fff;color:var(--ink);border:1px solid #DDE3E0;font-size:15px;min-height:48px}
+.link{background:none;border:0;color:var(--g);font:inherit;font-weight:600;font-size:14px;cursor:pointer;min-height:44px}
+.photo{display:flex;gap:12px;align-items:center}
+.photo img{width:72px;height:96px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+.scanbox{display:flex;flex-direction:column;align-items:center;gap:10px;padding:26px 16px;border:2px dashed var(--g);border-radius:18px;background:#fff;width:100%;font:inherit;color:var(--ink);cursor:pointer}
+.scanbox .ic{width:60px;height:60px;border-radius:18px;background:var(--gl);color:var(--g);display:flex;align-items:center;justify-content:center}
+.note{font-size:13px;border-radius:12px;padding:10px 12px;margin-top:10px}
+.note.ok{background:var(--gl);color:var(--g2)}
+.note.warn{background:var(--warnbg);color:var(--warn)}
+.note.err{background:#FDECEA;color:var(--red)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{min-height:40px;padding:6px 12px;border-radius:12px;border:1px solid #DDE3E0;background:var(--bg);font:inherit;font-size:13px;color:var(--ink);cursor:pointer;text-align:right}
+.impact{background:var(--ink);color:#fff;border-radius:18px;padding:16px;margin:12px 0}
+.impact div{display:flex;justify-content:space-between;font-size:14px;padding:3px 0}
+.impact .tot{border-top:1px solid rgba(255,255,255,.16);margin-top:6px;padding-top:10px;align-items:baseline}
+.impact .tot b{font-size:22px}
+.muted{color:#C9D2DB}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th,.tbl td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right}
+.tbl th{color:var(--mut);font-weight:600}
+.scroll{overflow-x:auto}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:14px;font-size:14px;z-index:50;max-width:90%;text-align:center}
+.demo{background:var(--warnbg);color:var(--warn);font-size:12px;text-align:center;padding:8px;border-radius:0 0 12px 12px}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.loginlogo{width:72px;height:72px;border-radius:22px;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;margin:60px auto 16px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div id="demoBar" class="demo hidden">وضع تجريبي — البيانات محفوظة على هذا الجهاز فقط. جرّب: admin / 1234 أو emp1 / 1111</div>
+
+  <!-- ============ الدخول ============ -->
+  <section id="v-login" class="hidden">
+    <div class="loginlogo"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg></div>
+    <h1 style="text-align:center;margin:0 0 4px;font-size:22px">مصروفات العهد</h1>
+    <p class="sub" style="text-align:center;margin:0 0 24px">سجّل الدخول باسم المستخدم والرمز السري</p>
+    <form id="loginForm" class="card">
+      <label class="f" for="lu">اسم المستخدم</label>
+      <input id="lu" autocomplete="username" autocapitalize="none" dir="ltr" required>
+      <label class="f" for="lp">الرمز السري</label>
+      <input id="lp" type="password" inputmode="numeric" autocomplete="current-password" dir="ltr" required>
+      <div id="loginErr"></div>
+      <button class="btn" style="margin-top:16px" type="submit">دخول</button>
+    </form>
+  </section>
+
+  <!-- ============ الرئيسية (موظف) ============ -->
+  <section id="v-home" class="hidden">
+    <header class="bar">
+      <div><div class="sub">مرحباً</div><h1 id="hName"></h1></div>
+      <div style="display:flex;gap:8px">
+        <button class="iconbtn" id="refreshBtn" aria-label="تحديث"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg></button>
+        <button class="iconbtn" data-logout aria-label="خروج"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>
+      </div>
+    </header>
+    <div class="balance">
+      <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:14px;opacity:.9">الرصيد الحالي</span><span class="pill" id="hBranch"></span></div>
+      <div style="margin-top:8px"><span class="big" id="hBalance">—</span> <span style="opacity:.9">ر.س</span></div>
+      <div class="grid">
+        <div>قيمة العهدة<b id="hCustody">—</b></div>
+        <div>مصروفات لم تُستعَض<b id="hSpent">—</b></div>
+      </div>
+    </div>
+    <button class="addbtn" id="addBtn">
+      <span class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8a2 2 0 0 1 2-2h2.5l1.5-2h6l1.5 2H19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="4"/></svg></span>
+      <span style="flex:1"><b>تسجيل مصروف جديد</b><span class="sub">صوّر الفاتورة وسيتم قراءتها تلقائياً</span></span>
+    </button>
+    <h2 style="font-size:16px;margin:0 0 10px">مصروفاتي</h2>
+    <div id="hList"></div>
+  </section>
+
+  <!-- ============ تسجيل / تعديل مصروف ============ -->
+  <section id="v-form" class="hidden">
+    <header class="bar">
+      <button class="iconbtn" id="formBack" aria-label="رجوع"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      <h1 id="formTitle">مصروف جديد</h1>
+      <span style="width:44px"></span>
+    </header>
+    <input type="file" id="camInput" accept="image/*" capture="environment" class="hidden">
+    <input type="file" id="galInput" accept="image/*" class="hidden">
+    <div id="scanArea">
+      <button class="scanbox" id="camBtn" type="button">
+        <span class="ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8a2 2 0 0 1 2-2h2.5l1.5-2h6l1.5 2H19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="4"/></svg></span>
+        <b style="font-size:16px">صوّر الفاتورة</b>
+        <span class="sub">تأكد أن رمز QR ظاهر وواضح في الصورة</span>
+      </button>
+      <div style="text-align:center"><button class="link" id="galBtn" type="button">أو اختر صورة من المعرض</button></div>
+    </div>
+    <div id="photoArea" class="card hidden">
+      <div class="photo">
+        <img id="photoPrev" alt="صورة الفاتورة">
+        <div style="flex:1">
+          <div id="qrStatus"></div>
+          <button class="link" id="retake" type="button">إعادة التصوير</button>
+        </div>
+      </div>
+    </div>
+    <form id="expForm" class="card">
+      <h2>بيانات الفاتورة</h2>
+      <label class="f" for="fDate">تاريخ الفاتورة</label>
+      <input id="fDate" type="date" required>
+      <label class="f" for="fVendor">اسم الشركة / المورد</label>
+      <input id="fVendor" required>
+      <label class="f" for="fVat">الرقم الضريبي</label>
+      <input id="fVat" inputmode="numeric" dir="ltr" maxlength="15" placeholder="3xxxxxxxxxxxxx3">
+      <div id="vatHint"></div>
+      <div class="two">
+        <div><label class="f" for="fNet">المبلغ قبل الضريبة</label><input id="fNet" inputmode="decimal" dir="ltr" required></div>
+        <div><label class="f" for="fTax">قيمة الضريبة</label><input id="fTax" inputmode="decimal" dir="ltr"></div>
+      </div>
+      <button class="link" type="button" id="calcTax">احسب الضريبة 15% تلقائياً</button>
+      <div id="taxHint"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;background:var(--gl);border-radius:12px;padding:12px;margin-top:6px">
+        <span style="color:var(--g2);font-size:14px">الإجمالي بعد الضريبة</span><b id="fTotal" style="color:var(--g2);font-size:18px">0.00</b>
+      </div>
+      <label class="f" for="fDesc" style="color:var(--ink);font-weight:700;font-size:15px">البيان <span style="color:var(--red)">*</span></label>
+      <textarea id="fDesc" placeholder="اكتب بيان المصروف…" required></textarea>
+      <div id="suggWrap" class="hidden"><div class="sub" style="margin-top:8px">بيانات سابقة لنفس المورد — اضغط لاستخدامها</div><div class="chips" id="sugg"></div></div>
+      <label class="f" for="fBranch">الفرع</label>
+      <select id="fBranch"></select>
+      <div class="impact">
+        <div><span class="muted">الرصيد الحالي</span><span id="iBal"></span></div>
+        <div><span class="muted">قيمة الفاتورة</span><span id="iAmt" style="color:#FF9B8F;direction:ltr"></span></div>
+        <div class="tot"><span class="muted">الرصيد بعد الخصم</span><b id="iAfter"></b></div>
+        <div id="iWarn" class="hidden" style="font-size:12px;color:#FFD5CF">قيمة الفاتورة أكبر من الرصيد المتاح</div>
+      </div>
+      <div id="formErr"></div>
+      <button class="btn" id="saveBtn" type="submit">حفظ وخصم من الرصيد</button>
+    </form>
+  </section>
+
+  <!-- ============ الأدمن ============ -->
+  <section id="v-admin" class="hidden">
+    <header class="bar">
+      <div><div class="sub">لوحة الأدمن</div><h1 id="aName"></h1></div>
+      <div style="display:flex;gap:8px">
+        <button class="iconbtn" id="aRefresh" aria-label="تحديث"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg></button>
+        <button class="iconbtn" data-logout aria-label="خروج"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>
+      </div>
+    </header>
+    <div class="card">
+      <h2>تصدير مصروفات لمشرف (للاستعاضة)</h2>
+      <label class="f" for="xSup">المشرف</label>
+      <select id="xSup"></select>
+      <div class="two">
+        <div><label class="f" for="xFrom">من تاريخ</label><input id="xFrom" type="date"></div>
+        <div><label class="f" for="xTo">إلى تاريخ</label><input id="xTo" type="date"></div>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;margin:12px 0;font-size:14px;min-height:44px"><input id="xOpen" type="checkbox" checked style="width:20px;height:20px">غير المستعاضة فقط</label>
+      <button class="btn" id="xBtn" type="button">عرض وتصدير Excel</button>
+      <div id="xResult"></div>
+    </div>
+    <div class="card">
+      <h2>أرصدة الموظفين</h2>
+      <div class="scroll"><table class="tbl" id="empTbl"></table></div>
+    </div>
+    <div class="card">
+      <h2>آخر الاستعاضات</h2>
+      <div class="scroll"><table class="tbl" id="reimbTbl"></table></div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ===================== الإعدادات ===================== */
+// ضع هنا رابط تطبيق الويب من Google Apps Script (ينتهي بـ /exec)
+// لو تركته فاضياً يعمل الموقع في "وضع تجريبي" على الجهاز فقط
+const API_URL = '';
+
+const JSQR_URL = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js';
+const XLSX_URL = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+const DEMO = !API_URL;
+const ST_DONE = 'مستعاض';
+
+/* ===================== أدوات ===================== */
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num = (v) => { const n = parseFloat(String(v ?? '').replace(/,/g, '').replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))); return isNaN(n) ? 0 : n; };
+const r2 = (n) => Math.round(n * 100) / 100;
+const fmt = (n) => Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
+const store = {
+  get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+};
+function toast(msg) {
+  const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), 3200);
+}
+function note(el, kind, msg) { el.innerHTML = msg ? `<div class="note ${kind}">${esc(msg)}</div>` : ''; }
+function loadScript(src) {
+  return new Promise((res, rej) => {
+    if (document.querySelector(`script[src="${src}"]`)) return res();
+    const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('تعذر تحميل مكتبة، تأكد من الإنترنت'));
+    document.head.appendChild(s);
+  });
+}
+function busy(btn, on, label) {
+  if (on) { btn.dataset.l = btn.innerHTML; btn.disabled = true; btn.innerHTML = `<span class="spinner"></span> ${label || 'جارٍ...'}`; }
+  else { btn.disabled = false; if (btn.dataset.l) btn.innerHTML = btn.dataset.l; }
+}
+
+/* ===================== الاتصال بالوسيط ===================== */
+let S = { token: store.get('ohda_token'), me: null, editing: null, image: null, source: 'يدوي', lastExport: null };
+
+async function api(action, data = {}) {
+  const body = Object.assign({ action, token: S.token }, data);
+  if (DEMO) return Demo.call(body);
+  const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
+  const j = await res.json();
+  if (!j.ok) throw new Error(j.error || 'حدث خطأ');
+  return j.data;
+}
+
+/* ===================== قراءة QR الزكاة (ZATCA) ===================== */
+function parseZatca(text) {
+  let bytes;
+  try { bytes = Uint8Array.from(atob(String(text).trim()), c => c.charCodeAt(0)); } catch (e) { return null; }
+  const out = {}; let i = 0;
+  while (i + 1 < bytes.length) {
+    const tag = bytes[i]; let len = bytes[i + 1]; i += 2;
+    if (len > 127) { const n = len & 0x7f; len = 0; for (let k = 0; k < n; k++) len = (len << 8) | bytes[i++]; }
+    const v = bytes.slice(i, i + len); i += len;
+    if (tag >= 1 && tag <= 5) out[tag] = new TextDecoder().decode(v);
+  }
+  if (!out[2] || !out[4]) return null;
+  const total = num(out[4]), tax = num(out[5]);
+  return { vendor: (out[1] || '').trim(), vat: out[2].trim(), date: (out[3] || '').slice(0, 10), total, tax, net: r2(total - tax) };
+}
+
+async function fileToImage(file) {
+  const url = URL.createObjectURL(file);
+  const img = new Image(); img.src = url;
+  await img.decode();
+  return img;
+}
+function drawScaled(img, max) {
+  const sc = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const c = document.createElement('canvas');
+  c.width = Math.round(img.naturalWidth * sc); c.height = Math.round(img.naturalHeight * sc);
+  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+  return c;
+}
+async function readQR(img) {
+  if ('BarcodeDetector' in window) {
+    try {
+      const d = new BarcodeDetector({ formats: ['qr_code'] });
+      const r = await d.detect(img);
+      if (r.length) return r[0].rawValue;
+    } catch (e) {}
+  }
+  await loadScript(JSQR_URL);
+  for (const max of [1200, 1800, 800, 2600]) {
+    const c = drawScaled(img, max);
+    const d = c.getContext('2d').getImageData(0, 0, c.width, c.height);
+    const code = window.jsQR(d.data, c.width, c.height, { inversionAttempts: 'attemptBoth' });
+    if (code) return code.data;
+  }
+  return null;
+}
+
+async function onPhoto(file) {
+  if (!file) return;
+  $('scanArea').classList.add('hidden'); $('photoArea').classList.remove('hidden');
+  const st = $('qrStatus');
+  st.innerHTML = '<div class="note ok">جارٍ قراءة الفاتورة…</div>';
+  try {
+    const img = await fileToImage(file);
+    $('photoPrev').src = img.src; $('photoPrev').classList.remove('hidden');
+    S.image = drawScaled(img, 1400).toDataURL('image/jpeg', 0.72);
+    const raw = await readQR(img);
+    const z = raw && parseZatca(raw);
+    if (z) {
+      S.source = 'QR';
+      if (z.date) $('fDate').value = z.date;
+      $('fVendor').value = z.vendor; $('fVat').value = z.vat;
+      $('fNet').value = z.net.toFixed(2); $('fTax').value = z.tax.toFixed(2);
+      note(st, 'ok', 'تمت قراءة الفاتورة من رمز QR ✓ راجع البيانات واكتب البيان');
+      $('fDesc').focus();
+    } else {
+      S.source = 'يدوي';
+      note(st, 'warn', raw ? 'رمز QR ليس فاتورة ضريبية — أدخل البيانات يدوياً' : 'لم يتم العثور على رمز QR — أدخل البيانات يدوياً أو أعد التصوير');
+    }
+  } catch (e) {
+    note(st, 'err', e.message || 'تعذرت قراءة الصورة');
+  }
+  updateForm();
+}
+
+/* ===================== الشاشات ===================== */
+function show(v) {
+  ['login', 'home', 'form', 'admin'].forEach(x => $('v-' + x).classList.toggle('hidden', x !== v));
+  window.scrollTo(0, 0);
+}
+
+async function boot() {
+  $('demoBar').classList.toggle('hidden', !DEMO);
+  if (!S.token) return show('login');
+  try { await loadMe(); }
+  catch (e) { logout(); note($('loginErr'), 'err', e.message); }
+}
+
+async function loadMe() {
+  S.me = await api('me');
+  if (S.me.user.role === 'أدمن') { await loadAdmin(); show('admin'); }
+  else { renderHome(); show('home'); }
+}
+
+function logout() { S.token = null; S.me = null; store.del('ohda_token'); show('login'); }
+
+$('loginForm').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const b = ev.submitter || $('loginForm').querySelector('button');
+  busy(b, true, 'جارٍ الدخول');
+  note($('loginErr'), '', '');
+  try {
+    const r = await api('login', { username: $('lu').value, pin: $('lp').value });
+    S.token = r.token; store.set('ohda_token', r.token); $('lp').value = '';
+    await loadMe();
+  } catch (e) { note($('loginErr'), 'err', e.message); }
+  busy(b, false);
+});
+document.querySelectorAll('[data-logout]').forEach(b => b.addEventListener('click', logout));
+
+/* ---------- الرئيسية ---------- */
+function renderHome() {
+  const m = S.me;
+  $('hName').textContent = m.user.name;
+  $('hBranch').textContent = m.user.branch ? 'فرع ' + m.user.branch : '';
+  $('hBalance').textContent = fmt(m.balance);
+  $('hCustody').textContent = fmt(m.custody);
+  $('hSpent').textContent = fmt(m.spent);
+  $('hList').innerHTML = m.expenses.length ? m.expenses.map(x => `
+    <button class="row" type="button" data-id="${esc(x.id)}">
+      <span class="t"><b>${esc(x.desc)}</b><span class="sub">${esc(x.vendor)} · ${esc(x.invDate)}</span></span>
+      <span style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <span class="amt">−${fmt(x.total)}</span>
+        <span class="tag ${x.status === ST_DONE ? 'done' : ''}">${esc(x.status)}${x.reimbNo ? ' ' + esc(x.reimbNo) : ''}</span>
+      </span>
+    </button>`).join('') : '<div class="card sub" style="text-align:center">لا توجد مصروفات مسجلة بعد</div>';
+  $('hList').querySelectorAll('[data-id]').forEach(b => b.addEventListener('click', () => {
+    const x = S.me.expenses.find(e => e.id === b.dataset.id);
+    if (x.status === ST_DONE) return toast('هذا المصروف تمت استعاضته ولا يمكن تعديله');
+    openForm(x);
+  }));
+}
+$('refreshBtn').addEventListener('click', async () => { try { await loadMe(); toast('تم التحديث'); } catch (e) { toast(e.message); } });
+$('addBtn').addEventListener('click', () => openForm(null));
+
+/* ---------- نموذج المصروف ---------- */
+function openForm(x) {
+  S.editing = x; S.image = null; S.source = x ? 'تعديل' : 'يدوي';
+  $('formTitle').textContent = x ? 'تصحيح مصروف ' + x.id : 'مصروف جديد';
+  $('saveBtn').textContent = x ? 'حفظ التصحيح' : 'حفظ وخصم من الرصيد';
+  $('scanArea').classList.toggle('hidden', !!x);
+  $('photoArea').classList.add('hidden');
+  $('fDate').value = x ? x.invDate : today();
+  $('fVendor').value = x ? x.vendor : '';
+  $('fVat').value = x ? x.vat : '';
+  $('fNet').value = x ? Number(x.net).toFixed(2) : '';
+  $('fTax').value = x ? Number(x.tax).toFixed(2) : '';
+  $('fDesc').value = x ? x.desc : '';
+  const br = S.me.branches.length ? S.me.branches : [S.me.user.branch].filter(Boolean);
+  $('fBranch').innerHTML = br.map(b => `<option>${esc(b)}</option>`).join('');
+  $('fBranch').value = x ? x.branch : (S.me.user.branch || br[0] || '');
+  note($('formErr'), '', '');
+  $('photoPrev').classList.toggle('hidden', !!x);
+  if (x) { $('photoArea').classList.remove('hidden'); $('photoPrev').removeAttribute('src'); note($('qrStatus'), 'ok', 'عدّل البيانات ثم احفظ — يمكنك إرفاق صورة جديدة'); }
+  updateForm();
+  show('form');
+}
+$('formBack').addEventListener('click', () => { renderHome(); show('home'); });
+$('camBtn').addEventListener('click', () => $('camInput').click());
+$('galBtn').addEventListener('click', () => $('galInput').click());
+$('retake').addEventListener('click', () => $('camInput').click());
+$('camInput').addEventListener('change', (e) => { onPhoto(e.target.files[0]); e.target.value = ''; });
+$('galInput').addEventListener('change', (e) => { onPhoto(e.target.files[0]); e.target.value = ''; });
+$('calcTax').addEventListener('click', () => { $('fTax').value = r2(num($('fNet').value) * 0.15).toFixed(2); updateForm(); });
+['fNet', 'fTax', 'fVat', 'fVendor', 'fDesc'].forEach(id => $(id).addEventListener('input', updateForm));
+
+function updateForm() {
+  const net = num($('fNet').value), tax = num($('fTax').value), total = r2(net + tax);
+  $('fTotal').textContent = fmt(total);
+  const vat = $('fVat').value.trim();
+  note($('vatHint'), 'warn', vat && !/^3\d{13}3$/.test(vat) ? 'الرقم الضريبي يجب أن يكون 15 رقماً يبدأ وينتهي بـ 3' : '');
+  const exp = r2(net * 0.15);
+  note($('taxHint'), 'warn', net > 0 && tax > 0 && Math.abs(exp - tax) > 0.05 ? `الضريبة لا تساوي 15% من المبلغ (المتوقع ${fmt(exp)}) — راجع الأرقام` : '');
+  const base = S.me.balance + (S.editing ? S.editing.total : 0);
+  const after = r2(base - total);
+  $('iBal').textContent = fmt(base) + ' ر.س';
+  $('iAmt').textContent = '−' + fmt(total);
+  $('iAfter').textContent = fmt(after) + ' ر.س';
+  $('iAfter').style.color = after < 0 ? '#FF9B8F' : '#7FD1AE';
+  $('iWarn').classList.toggle('hidden', after >= 0);
+  // اقتراحات البيان من مصروفات سابقة لنفس المورد
+  const v = $('fVendor').value.trim();
+  const prev = S.me.expenses.filter(e => (vat && e.vat === vat) || (v && e.vendor === v)).map(e => e.desc);
+  const uniq = prev.filter((d, i) => d && prev.indexOf(d) === i).slice(0, 4);
+  $('suggWrap').classList.toggle('hidden', !uniq.length);
+  $('sugg').innerHTML = uniq.map(d => `<button type="button" class="chip">${esc(d)}</button>`).join('');
+  $('sugg').querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => { $('fDesc').value = c.textContent; }));
+}
+
+$('expForm').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const b = $('saveBtn');
+  const expense = {
+    invDate: $('fDate').value, vendor: $('fVendor').value, vat: $('fVat').value.trim(),
+    net: num($('fNet').value), tax: num($('fTax').value), desc: $('fDesc').value, branch: $('fBranch').value, source: S.source
+  };
+  busy(b, true, 'جارٍ الحفظ');
+  note($('formErr'), '', '');
+  try {
+    if (S.editing) await api('updateExpense', { id: S.editing.id, expense, image: S.image });
+    else await api('addExpense', { expense, image: S.image });
+    S.me = await api('me');
+    renderHome(); show('home');
+    toast(S.editing ? 'تم حفظ التصحيح وتحديث الرصيد' : `تم التسجيل ✓ الرصيد الجديد ${fmt(S.me.balance)} ر.س`);
+  } catch (e) { note($('formErr'), 'err', e.message); }
+  busy(b, false);
+});
+
+/* ---------- الأدمن ---------- */
+async function loadAdmin() {
+  const d = await api('adminData');
+  $('aName').textContent = S.me.user.name;
+  const cur = $('xSup').value;
+  $('xSup').innerHTML = '<option value="">كل المشرفين</option>' + d.supervisors.map(s => `<option>${esc(s)}</option>`).join('');
+  $('xSup').value = cur;
+  $('empTbl').innerHTML = '<tr><th>الموظف</th><th>المشرف</th><th>العهدة</th><th>المصروف</th><th>الرصيد</th></tr>' +
+    (d.employees.map(e => `<tr><td>${esc(e.name)}<div class="sub">${esc(e.branch)}</div></td><td>${esc(e.supervisor)}</td><td>${fmt(e.custody)}</td><td>${fmt(e.spent)}<div class="sub">${e.openCount} فاتورة</div></td><td style="font-weight:700;color:${e.balance < 0 ? 'var(--red)' : 'var(--g2)'}">${fmt(e.balance)}</td></tr>`).join('') || '<tr><td colspan="5" class="sub">أضف الموظفين في شيت الموظفين</td></tr>');
+  $('reimbTbl').innerHTML = '<tr><th>الرقم</th><th>التاريخ</th><th>المشرف</th><th>العدد</th><th>الإجمالي</th></tr>' +
+    (d.reimbursements.map(r => `<tr><td>${esc(r.no)}</td><td>${esc(r.date)}</td><td>${esc(r.supervisor)}</td><td>${r.count}</td><td>${fmt(r.total)}</td></tr>`).join('') || '<tr><td colspan="5" class="sub">لا توجد استعاضات بعد</td></tr>');
+}
+$('aRefresh').addEventListener('click', async () => { try { await loadAdmin(); toast('تم التحديث'); } catch (e) { toast(e.message); } });
+
+$('xBtn').addEventListener('click', async () => {
+  const b = $('xBtn');
+  const q = { supervisor: $('xSup').value, from: $('xFrom').value, to: $('xTo').value, onlyOpen: $('xOpen').checked };
+  busy(b, true, 'جارٍ التجهيز');
+  try {
+    const d = await api('exportData', q);
+    S.lastExport = { q, rows: d.rows };
+    const open = d.rows.filter(r => r.status !== ST_DONE);
+    const total = r2(d.rows.reduce((s, r) => s + r.total, 0));
+    $('xResult').innerHTML = d.rows.length ? `
+      <div class="note ok">${d.rows.length} فاتورة — الإجمالي ${fmt(total)} ر.س</div>
+      <button class="btn sec" style="margin-top:10px" id="dlBtn" type="button">تنزيل ملف Excel</button>
+      ${open.length ? `<button class="btn" style="margin-top:10px" id="rbBtn" type="button">اعتماد كاستعاضة (${open.length} فاتورة بـ ${fmt(r2(open.reduce((s, r) => s + r.total, 0)))})</button>` : ''}`
+      : '<div class="note warn">لا توجد مصروفات بهذه الشروط</div>';
+    if (d.rows.length) { $('dlBtn').addEventListener('click', () => exportXlsx(S.lastExport)); await exportXlsx(S.lastExport); }
+    if ($('rbBtn')) $('rbBtn').addEventListener('click', doReimburse);
+  } catch (e) { note($('xResult'), 'err', e.message); }
+  busy(b, false);
+});
+
+async function doReimburse() {
+  const ex = S.lastExport; const open = ex.rows.filter(r => r.status !== ST_DONE);
+  if (!confirm(`سيتم اعتماد ${open.length} فاتورة كاستعاضة وإرجاع أرصدة الموظفين. متابعة؟`)) return;
+  const b = $('rbBtn'); busy(b, true, 'جارٍ الاعتماد');
+  try {
+    const r = await api('reimburse', { ids: open.map(x => x.id), supervisor: ex.q.supervisor, from: ex.q.from, to: ex.q.to });
+    $('xResult').innerHTML = `<div class="note ok">تم اعتماد الاستعاضة ${esc(r.no)} — ${r.count} فاتورة بإجمالي ${fmt(r.total)} ر.س</div>`;
+    await loadAdmin();
+  } catch (e) { busy(b, false); toast(e.message); }
+}
+
+async function exportXlsx(ex) {
+  await loadScript(XLSX_URL);
+  const X = window.XLSX;
+  const head = ['المعرف', 'الموظف', 'الفرع', 'المشرف', 'تاريخ الفاتورة', 'المورد', 'الرقم الضريبي', 'قبل الضريبة', 'الضريبة', 'بعد الضريبة', 'البيان', 'الحالة', 'رقم الاستعاضة', 'صورة الفاتورة'];
+  const groups = {};
+  ex.rows.forEach(r => { (groups[r.supervisor || 'بدون مشرف'] = groups[r.supervisor || 'بدون مشرف'] || []).push(r); });
+  const wb = X.utils.book_new();
+  wb.Workbook = { Views: [{ RTL: true }] };
+  const summary = [['المشرف', 'عدد الفواتير', 'قبل الضريبة', 'الضريبة', 'الإجمالي']];
+  const used = {};
+  Object.keys(groups).forEach(sup => {
+    const rows = groups[sup];
+    const aoa = [head].concat(rows.map(r => [r.id, r.empName, r.branch, r.supervisor, r.invDate, r.vendor, r.vat, r.net, r.tax, r.total, r.desc, r.status, r.reimbNo, r.image]));
+    const s = (k) => r2(rows.reduce((a, r) => a + r[k], 0));
+    aoa.push([]);
+    aoa.push(['ملخص حسب الموظف']);
+    aoa.push(['الموظف', 'عدد الفواتير', 'قبل الضريبة', 'الضريبة', 'الإجمالي']);
+    const byEmp = {};
+    rows.forEach(r => { const k = r.empName; byEmp[k] = byEmp[k] || [0, 0, 0, 0]; byEmp[k][0]++; byEmp[k][1] += r.net; byEmp[k][2] += r.tax; byEmp[k][3] += r.total; });
+    Object.keys(byEmp).forEach(k => aoa.push([k, byEmp[k][0], r2(byEmp[k][1]), r2(byEmp[k][2]), r2(byEmp[k][3])]));
+    aoa.push(['الإجمالي', rows.length, s('net'), s('tax'), s('total')]);
+    summary.push([sup, rows.length, s('net'), s('tax'), s('total')]);
+    const ws = X.utils.aoa_to_sheet(aoa);
+    ws['!cols'] = [10, 18, 14, 18, 12, 24, 18, 12, 10, 12, 34, 10, 12, 30].map(w => ({ wch: w }));
+    let name = String(sup).replace(/[\[\]:*?\/\\]/g, ' ').slice(0, 28) || 'مشرف';
+    while (used[name]) name = name.slice(0, 26) + '_' + Object.keys(used).length;
+    used[name] = 1;
+    X.utils.book_append_sheet(wb, ws, name);
+  });
+  if (Object.keys(groups).length > 1) {
+    const ws = X.utils.aoa_to_sheet(summary);
+    ws['!cols'] = [{ wch: 22 }, { wch: 12 }, { wch: 14 }, { wch: 12 }, { wch: 14 }];
+    X.utils.book_append_sheet(wb, ws, 'ملخص');
+    wb.SheetNames.unshift(wb.SheetNames.pop());
+  }
+  const q = ex.q;
+  const fname = `استعاضة_${q.supervisor || 'كل_المشرفين'}_${q.from || 'البداية'}_${q.to || today()}.xlsx`.replace(/\s+/g, '_');
+  X.writeFile(wb, fname);
+}
+
+/* ===================== الوضع التجريبي (بدون Apps Script) ===================== */
+const Demo = {
+  db() {
+    let d = store.get('ohda_demo');
+    if (!d) {
+      d = {
+        emps: [
+          { name: 'المدير', username: 'admin', pin: '1234', role: 'أدمن', branch: '', supervisor: '', custody: 0 },
+          { name: 'موظف تجريبي 1', username: 'emp1', pin: '1111', role: 'موظف', branch: 'جزلا 1', supervisor: 'مشرف تجريبي أ', custody: 3000 },
+          { name: 'موظف تجريبي 2', username: 'emp2', pin: '2222', role: 'موظف', branch: 'كاتش اند ايت', supervisor: 'مشرف تجريبي ب', custody: 2000 }
+        ], exps: [], reimbs: []
+      };
+      store.set('ohda_demo', d);
+    }
+    return d;
+  },
+  save(d) { store.set('ohda_demo', d); },
+  user(d, token) { const u = d.emps.find(e => e.username === token); if (!u) throw new Error('سجّل الدخول أولاً'); return u; },
+  validate(e) {
+    const o = { invDate: String(e.invDate || ''), vendor: String(e.vendor || '').trim(), vat: String(e.vat || ''), net: r2(num(e.net)), tax: r2(num(e.tax)), desc: String(e.desc || '').trim(), branch: e.branch, source: e.source };
+    o.total = r2(o.net + o.tax);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(o.invDate)) throw new Error('تاريخ الفاتورة غير صحيح');
+    if (!o.vendor) throw new Error('اكتب اسم المورد');
+    if (o.vat && !/^3\d{13}3$/.test(o.vat)) throw new Error('الرقم الضريبي يجب أن يكون 15 رقماً يبدأ وينتهي بـ 3');
+    if (o.total <= 0) throw new Error('المبلغ غير صحيح');
+    if (!o.desc) throw new Error('اكتب البيان');
+    return o;
+  },
+  dup(d, e, except) {
+    if (!e.vat) return;
+    const x = d.exps.find(x => x.id !== except && x.vat === e.vat && x.invDate === e.invDate && Math.abs(x.total - e.total) < 0.01);
+    if (x) throw new Error('هذه الفاتورة مسجلة من قبل برقم ' + x.id + ' باسم ' + x.empName);
+  },
+  async call(r) {
+    await new Promise(res => setTimeout(res, 250));
+    const d = this.db();
+    switch (r.action) {
+      case 'login': {
+        const u = d.emps.find(e => e.username === String(r.username).trim().toLowerCase() && e.pin === String(r.pin).trim());
+        if (!u) throw new Error('اسم المستخدم أو الرمز غير صحيح');
+        return { token: u.username, user: u };
+      }
+      case 'me': {
+        const u = this.user(d, r.token);
+        const mine = d.exps.filter(e => e.username === u.username).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+        const spent = r2(mine.filter(e => e.status !== ST_DONE).reduce((s, e) => s + e.total, 0));
+        const branches = d.emps.map(e => e.branch).filter((b, i, a) => b && a.indexOf(b) === i);
+        return { user: u, custody: u.custody, spent, balance: r2(u.custody - spent), expenses: mine, branches };
+      }
+      case 'addExpense': {
+        const u = this.user(d, r.token); const e = this.validate(r.expense); this.dup(d, e);
+        const id = 'EXP-' + String(d.exps.length + 1).padStart(5, '0');
+        d.exps.push(Object.assign({ id, createdAt: new Date().toISOString(), username: u.username, empName: u.name, supervisor: u.supervisor, status: 'جديد', reimbNo: '', image: r.image ? '(صورة محفوظة على الجهاز)' : '' }, e));
+        this.save(d); return { id };
+      }
+      case 'updateExpense': {
+        const u = this.user(d, r.token); const x = d.exps.find(e => e.id === r.id);
+        if (!x || (x.username !== u.username && u.role !== 'أدمن')) throw new Error('المصروف غير موجود');
+        if (x.status === ST_DONE && u.role !== 'أدمن') throw new Error('لا يمكن تعديل مصروف تمت استعاضته');
+        const e = this.validate(r.expense); this.dup(d, e, x.id); Object.assign(x, e); this.save(d); return { id: x.id };
+      }
+      case 'adminData': {
+        const a = this.user(d, r.token); if (a.role !== 'أدمن') throw new Error('هذه العملية للأدمن فقط');
+        const employees = d.emps.filter(e => e.role !== 'أدمن').map(e => {
+          const open = d.exps.filter(x => x.username === e.username && x.status !== ST_DONE);
+          const spent = r2(open.reduce((s, x) => s + x.total, 0));
+          return { name: e.name, username: e.username, branch: e.branch, supervisor: e.supervisor, custody: e.custody, spent, balance: r2(e.custody - spent), openCount: open.length };
+        });
+        return { employees, supervisors: employees.map(e => e.supervisor).filter((s, i, a) => s && a.indexOf(s) === i), reimbursements: d.reimbs.slice().reverse() };
+      }
+      case 'exportData': {
+        return { rows: d.exps.filter(x => (!r.supervisor || x.supervisor === r.supervisor) && (!r.from || x.invDate >= r.from) && (!r.to || x.invDate <= r.to) && (!r.onlyOpen || x.status !== ST_DONE)) };
+      }
+      case 'reimburse': {
+        const a = this.user(d, r.token);
+        const no = 'R-' + String(d.reimbs.length + 1).padStart(4, '0'); let total = 0, count = 0;
+        d.exps.forEach(x => { if (r.ids.includes(x.id) && x.status !== ST_DONE) { x.status = ST_DONE; x.reimbNo = no; total += x.total; count++; } });
+        if (!count) throw new Error('المصروفات المحددة تمت استعاضتها من قبل');
+        d.reimbs.push({ no, date: today(), supervisor: r.supervisor || 'الكل', from: r.from, to: r.to, count, total: r2(total), by: a.name });
+        this.save(d); return { no, count, total: r2(total) };
+      }
+    }
+    throw new Error('طلب غير معروف');
+  }
+};
+
+boot();
+</script>
+</body>
+</html>
