@@ -128,6 +128,7 @@ body.dark .btn:disabled{background:#26312C;color:var(--mut)}
 body.dark .balance{background:#0B5A41}
 
 #printArea{display:none}
+.html2pdf__overlay,.html2pdf__container{direction:ltr!important}
 .page{width:210mm;min-height:297mm;padding:14mm 13mm;box-sizing:border-box;background:#fff;color:#111;font-family:'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;direction:rtl;position:relative}
 .page + .page{page-break-before:always;break-before:page}
 .pf-head{display:flex;align-items:center;justify-content:center;position:relative;min-height:38mm}
@@ -1453,9 +1454,11 @@ async function settlePdf() {
     await loadScript(PDF_URL);
     buildSettlePages();
     // نسخة مرئية من النموذج (html2canvas لا يرسم العناصر المخفية أو المزاحة خارج الشاشة)
-    const wrap = document.createElement('div');
+    // الحاوية LTR (حتى لا تُزاح الصفحة خارج الإطار على شاشات الموبايل) والصفحات نفسها RTL
+    const wrap = document.createElement('div'); wrap.dir = 'ltr';
     wrap.style.cssText = 'position:absolute;left:0;top:0;width:210mm;z-index:-1;opacity:1;pointer-events:none;background:#fff';
-    const node = document.createElement('div'); node.dir = 'rtl'; node.innerHTML = $('printArea').innerHTML;
+    const node = document.createElement('div'); node.dir = 'ltr'; node.innerHTML = $('printArea').innerHTML;
+    node.querySelectorAll('.page').forEach(pg => { pg.dir = 'rtl'; });
     wrap.appendChild(node); document.body.appendChild(wrap);
     await document.fonts.ready; await new Promise(r => setTimeout(r, 150));
     try {
