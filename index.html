@@ -413,7 +413,7 @@ body.dark .balance{background:#0B5A41}
     <div class="kpis" id="aKpis"></div>
     <div class="tabs atabs" id="aTabs" role="tablist" aria-label="أقسام لوحة الأدمن">
       <button type="button" data-at="exp" class="on">المصروفات</button>
-      <button type="button" data-at="settle">تفريغ عهدة</button>
+      <button type="button" data-at="settle">تصفية عهدة</button>
       <button type="button" data-at="sup" id="supTabBtn">الموظفين</button>
       <button type="button" data-at="reimb">الاستعاضات</button>
     </div>
@@ -437,14 +437,14 @@ body.dark .balance{background:#0B5A41}
 
     <div class="apane hidden" data-pane="settle">
     <div class="card">
-      <h2>نموذج تفريغ عهدة (طباعة / PDF / Excel)</h2>
-      <label class="f" for="pUser">المشرف</label>
+      <h2>تصفية عهدة</h2>
+      <label class="f" for="pUser">اختر المشرف</label>
       <select id="pUser"></select>
       <div class="two">
         <div><label class="f" for="pFrom">من تاريخ</label><input id="pFrom" type="date"></div>
         <div><label class="f" for="pTo">إلى تاريخ</label><input id="pTo" type="date"></div>
       </div>
-      <label style="display:flex;align-items:center;gap:8px;margin:12px 0;font-size:14px;min-height:44px"><input id="pOpen" type="checkbox" checked style="width:20px;height:20px">غير المعتمدة فقط</label>
+      <label style="display:flex;align-items:center;gap:8px;margin:12px 0;font-size:14px;min-height:44px"><input id="pOpen" type="checkbox" checked style="width:20px;height:20px">غير المُصفّاة فقط</label>
       <button class="btn" id="pBtn" type="button">عرض المصروفات</button>
       <div id="pResult"></div>
     </div>
@@ -886,7 +886,7 @@ async function loadAdmin() {
   S.jobByUser = {}; d.employees.forEach(e => { if (e.username) S.jobByUser[String(e.username).toLowerCase()] = jobKey(e.job); });
   $('aName').textContent = S.me.user.name;
   const curU = $('pUser').value;
-  $('pUser').innerHTML = jobOptions(d.employees.filter(e => e.hasLogin), false) || '<option value="">لا يوجد موظفين لهم دخول</option>';
+  $('pUser').innerHTML = '<option value="">— اختر المشرف —</option>' + (jobOptions(d.employees.filter(e => e.hasLogin), false) || '');
   if (curU) $('pUser').value = curU;
   const cur = $('xSup').value;
   $('xSup').innerHTML = '<option value="">كل المشرفين</option>' + d.supervisors.map(s => `<option>${esc(s)}</option>`).join('');
@@ -1339,38 +1339,50 @@ $('pBtn').addEventListener('click', async () => {
   } catch (e) { note($('pResult'), 'err', e.message); }
   busy(b, false);
 });
+['pUser', 'pFrom', 'pTo', 'pOpen'].forEach(id => $(id).addEventListener('change', () => {
+  if ($('pUser').value) $('pBtn').click(); else $('pResult').innerHTML = '';
+}));
 
 function settleSelected() { return S.settle.rows.filter((r, i) => !S.settle.off || !S.settle.off[i]); }
 
 function renderSettleList() {
   const st = S.settle; st.off = st.off || {};
-  if (!st.rows.length) return note($('pResult'), 'warn', 'لا توجد مصروفات لهذا المشرف في الفترة المحددة');
-  const sel = settleSelected(); const total = r2(sel.reduce((a, r) => a + r.total, 0));
+  if (!st.rows.length) return note($('pResult'), 'warn', ($('pOpen').checked ? 'لا توجد فواتير غير مُصفّاة لهذا المشرف — عهدته مُصفّاة بالكامل ✓' : 'لا توجد فواتير لهذا المشرف في الفترة المحددة'));
+  const sel = settleSelected(); const sum = (k) => r2(sel.reduce((a, r) => a + (Number(r[k]) || 0), 0));
+  const total = sum('total');
+  const nOpen = sel.filter(isOpen).length;
   $('pResult').innerHTML = `
-    <div class="note ok">${sel.length} من ${st.rows.length} فاتورة — الإجمالي ${fmt(total)} ر.س</div>
+    <div class="note ok">${esc(supName(st.name))}: ${sel.length} من ${st.rows.length} فاتورة محددة</div>
     <div class="scroll" style="margin-top:10px"><table class="tbl">
-      <tr><th></th><th>التاريخ</th><th>البيان</th><th>المبلغ</th></tr>
+      <tr><th></th><th>التاريخ</th><th>رقم الفاتورة</th><th>البيان / المورد</th><th>قبل الضريبة</th><th>الضريبة</th><th>الإجمالي</th><th>الحالة</th></tr>
       ${st.rows.map((r, i) => `<tr><td><input type="checkbox" data-i="${i}" ${st.off[i] ? '' : 'checked'} style="width:20px;height:20px" aria-label="تضمين"></td>
-        <td style="white-space:nowrap">${esc(fmtD(r.invDate))}</td><td>${esc(r.desc)}<div class="sub">${esc(r.vendor)}</div></td><td>${fmt(r.total)}</td></tr>`).join('')}
+        <td style="white-space:nowrap">${esc(fmtD(r.invDate))}</td><td>${esc(r.invNo || '')}</td><td>${esc(r.desc)}<div class="sub">${esc(r.vendor)}</div></td>
+        <td>${fmt(r.net)}</td><td>${fmt(r.tax)}</td><td><b>${fmt(r.total)}</b></td><td>${esc(stLabel(r))}</td></tr>`).join('')}
+      <tr style="background:#E8EEF4;font-weight:700"><td></td><td colspan="3">الإجمالي (${sel.length} فاتورة)</td>
+        <td>${fmt(sum('net'))}</td><td>${fmt(sum('tax'))}</td><td>${fmt(total)}</td><td></td></tr>
     </table></div>
-    <button class="btn" style="margin-top:12px" id="pPrint" type="button">طباعة النموذج</button>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:12px 14px;border-radius:12px;background:#E8EEF4;font-weight:700"><span>إجمالي الفواتير المحددة (${sel.length})</span><span style="font-size:20px">${fmt(total)} ر.س</span></div>
+    <button class="btn" style="margin-top:12px" id="pReimb" type="button" ${nOpen ? '' : 'disabled'}>ترحيل وتصفية (${nOpen} فاتورة — ${fmt(r2(sel.filter(isOpen).reduce((a, r) => a + r.total, 0)))} ر.س)</button>
+    <button class="btn sec" style="margin-top:8px" id="pPrint" type="button">طباعة النموذج</button>
     <div class="two" style="margin-top:8px">
       <button class="btn sec" id="pPdf" type="button">تنزيل PDF</button>
       <button class="btn sec" id="pXls" type="button">تنزيل Excel</button>
-    </div>
-    <button class="btn sec" style="margin-top:8px" id="pReimb" type="button">اعتماد كاستعاضة</button>`;
+    </div>`;
   $('pResult').querySelectorAll('input[data-i]').forEach(c => c.addEventListener('change', () => { st.off[c.dataset.i] = !c.checked; renderSettleList(); }));
   $('pPrint').addEventListener('click', () => { buildSettlePages(); setTimeout(() => window.print(), 300); });
   $('pPdf').addEventListener('click', settlePdf);
   $('pXls').addEventListener('click', settleXlsx);
   $('pReimb').addEventListener('click', async () => {
     const open = settleSelected().filter(isOpen);
-    if (!open.length) return toast('كل الفواتير المحددة معتمدة من قبل');
-    if (!confirm(`اعتماد ${open.length} فاتورة بإجمالي ${fmt(r2(open.reduce((a, r) => a + r.total, 0)))} ر.س كاستعاضة؟`)) return;
+    if (!open.length) return toast('كل الفواتير المحددة مُصفّاة من قبل');
+    if (!confirm(`ترحيل وتصفية ${open.length} فاتورة للمشرف ${supName(st.name)} بإجمالي ${fmt(r2(open.reduce((a, r) => a + r.total, 0)))} ر.س؟\n\nسيتم إنشاء استعاضة وترحيلها لورقة «الترحيل» ويرجع رصيد المشرف.`)) return;
+    const btn = $('pReimb'); busy(btn, true, 'جارٍ الترحيل');
     try {
       const r = await api('reimburse', { ids: open.map(x => x.id), supervisor: st.name, from: st.from, to: st.to });
-      toast(`تم اعتماد الاستعاضة ${r.no} — رحّلها من تبويب الاستعاضات`); await loadAdmin(); $('pBtn').click();
-    } catch (e) { toast(e.message); }
+      const p = await api('markPosted', { no: r.no });
+      toast(`تمت التصفية ✓ استعاضة ${r.no} — ${p.count} فاتورة رُحّلت`);
+      await loadAdmin(); S.allExp = null; $('pBtn').click();
+    } catch (e) { toast(e.message); busy(btn, false); }
   });
 }
 
