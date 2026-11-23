@@ -104,9 +104,10 @@ input[dir=ltr]{text-align:right}
       <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:14px;opacity:.9">الرصيد الحالي</span><span class="pill" id="hBranch"></span></div>
       <div style="margin-top:8px"><span class="big" id="hBalance">—</span> <span style="opacity:.9">ر.س</span></div>
       <div class="grid">
-        <div>قيمة العهدة<b id="hCustody">—</b></div>
+        <div>رصيد دفتر العهدة<b id="hCustody">—</b></div>
         <div>مصروفات لم تُستعَض<b id="hSpent">—</b></div>
       </div>
+      <div id="hSync" style="font-size:12px;opacity:.85;margin-top:10px"></div>
     </div>
     <button class="addbtn" id="addBtn">
       <span class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8a2 2 0 0 1 2-2h2.5l1.5-2h6l1.5 2H19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="4"/></svg></span>
@@ -185,6 +186,15 @@ input[dir=ltr]{text-align:right}
         <button class="iconbtn" data-logout aria-label="خروج"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>
       </div>
     </header>
+    <div class="card">
+      <h2>تحديث الأرصدة من ملف الإكسل</h2>
+      <p class="sub" style="margin:0 0 10px">اختر ملف «عهد المشرفين» (.xlsx) — يُقرأ رصيد كل مشرف من شيت «قائمة المشرفين» (عمود الرصيد الحالي) ويُطابَق برقم الحساب.</p>
+      <input type="file" id="xlsFile" accept=".xlsx,.xlsm,.xls" class="hidden">
+      <button class="btn" id="ledgerBtn" type="button">استيراد المشرفين من دفتر العهد (جوجل)</button>
+      <button class="btn sec" id="xlsBtn" type="button" style="margin-top:8px">أو اختيار ملف إكسل</button>
+      <div id="xlsResult"></div>
+      <div id="lastSync" class="sub" style="margin-top:8px"></div>
+    </div>
     <div class="card">
       <h2>تصدير مصروفات لمشرف (للاستعاضة)</h2>
       <label class="f" for="xSup">المشرف</label>
@@ -378,6 +388,7 @@ function renderHome() {
   $('hBalance').textContent = fmt(m.balance);
   $('hCustody').textContent = fmt(m.custody);
   $('hSpent').textContent = fmt(m.spent);
+  $('hSync').textContent = m.lastSync ? 'رصيد الدفتر محدّث في ' + m.lastSync : '';
   $('hList').innerHTML = m.expenses.length ? m.expenses.map(x => `
     <button class="row" type="button" data-id="${esc(x.id)}">
       <span class="t"><b>${esc(x.desc)}</b><span class="sub">${esc(x.vendor)} · ${esc(x.invDate)}</span></span>
@@ -476,7 +487,8 @@ async function loadAdmin() {
   $('xSup').innerHTML = '<option value="">كل المشرفين</option>' + d.supervisors.map(s => `<option>${esc(s)}</option>`).join('');
   $('xSup').value = cur;
   $('empTbl').innerHTML = '<tr><th>الموظف</th><th>المشرف</th><th>العهدة</th><th>المصروف</th><th>الرصيد</th></tr>' +
-    (d.employees.map(e => `<tr><td>${esc(e.name)}<div class="sub">${esc(e.branch)}</div></td><td>${esc(e.supervisor)}</td><td>${fmt(e.custody)}</td><td>${fmt(e.spent)}<div class="sub">${e.openCount} فاتورة</div></td><td style="font-weight:700;color:${e.balance < 0 ? 'var(--red)' : 'var(--g2)'}">${fmt(e.balance)}</td></tr>`).join('') || '<tr><td colspan="5" class="sub">أضف الموظفين في شيت الموظفين</td></tr>');
+    (d.employees.map(e => `<tr><td>${esc(e.name)}<div class="sub">${esc(e.branch)}${e.hasLogin ? '' : ' · <span style="color:var(--warn)">بدون دخول</span>'}</div></td><td>${esc(e.supervisor)}</td><td>${fmt(e.custody)}</td><td>${fmt(e.spent)}<div class="sub">${e.openCount} فاتورة</div></td><td style="font-weight:700;color:${e.balance < 0 ? 'var(--red)' : 'var(--g2)'}">${fmt(e.balance)}</td></tr>`).join('') || '<tr><td colspan="5" class="sub">أضف الموظفين في شيت الموظفين</td></tr>');
+  $('lastSync').textContent = d.ledger ? 'الأرصدة تُقرأ مباشرة من دفتر العهد على جوجل' + (d.lastSync ? ' · آخر استيراد: ' + d.lastSync : '') : (d.lastSync ? 'آخر تحديث: ' + d.lastSync : 'لم يتم التحديث من الإكسل بعد');
   $('reimbTbl').innerHTML = '<tr><th>الرقم</th><th>التاريخ</th><th>المشرف</th><th>العدد</th><th>الإجمالي</th></tr>' +
     (d.reimbursements.map(r => `<tr><td>${esc(r.no)}</td><td>${esc(r.date)}</td><td>${esc(r.supervisor)}</td><td>${r.count}</td><td>${fmt(r.total)}</td></tr>`).join('') || '<tr><td colspan="5" class="sub">لا توجد استعاضات بعد</td></tr>');
 }
@@ -553,6 +565,64 @@ async function exportXlsx(ex) {
   X.writeFile(wb, fname);
 }
 
+/* ---------- تحديث الأرصدة من ملف الإكسل ---------- */
+$('xlsBtn').addEventListener('click', () => $('xlsFile').click());
+$('ledgerBtn').addEventListener('click', async () => {
+  const b = $('ledgerBtn'); busy(b, true, 'جارٍ الاستيراد');
+  try {
+    const r = await api('syncBalances', {});
+    note($('xlsResult'), 'ok', `تم تحديث ${r.updated} مشرف وإضافة ${r.added} جديد. المضافون الجدد يحتاجون اسم مستخدم ورمز سري في شيت الموظفين.`);
+    await loadAdmin();
+  } catch (e) { note($('xlsResult'), 'err', e.message); }
+  busy(b, false);
+});
+$('xlsFile').addEventListener('change', async (e) => {
+  const f = e.target.files[0]; e.target.value = '';
+  if (!f) return;
+  const out = $('xlsResult');
+  note(out, 'ok', 'جارٍ قراءة الملف…');
+  try {
+    S.syncRows = await readSupervisors(f);
+    const total = r2(S.syncRows.reduce((s, x) => s + x.balance, 0));
+    const act = S.syncRows.filter(x => x.status !== 'غير نشط').length;
+    out.innerHTML = `<div class="note ok">تمت قراءة ${S.syncRows.length} مشرف (${act} نشط) — إجمالي الأرصدة ${fmt(total)} ر.س</div>
+      <button class="btn" style="margin-top:10px" id="syncBtn" type="button">رفع الأرصدة للموقع</button>`;
+    $('syncBtn').addEventListener('click', async () => {
+      const b = $('syncBtn'); busy(b, true, 'جارٍ الرفع');
+      try {
+        const r = await api('syncBalances', { rows: S.syncRows });
+        note(out, 'ok', `تم تحديث ${r.updated} مشرف وإضافة ${r.added} جديد. المضافون الجدد يحتاجون اسم مستخدم ورمز سري في شيت الموظفين ليقدروا يدخلوا.`);
+        await loadAdmin();
+      } catch (err) { busy(b, false); toast(err.message); }
+    });
+  } catch (err) { note(out, 'err', err.message); }
+});
+
+async function readSupervisors(file) {
+  await loadScript(XLSX_URL);
+  const wb = window.XLSX.read(await file.arrayBuffer(), { type: 'array' });
+  const name = wb.SheetNames.find(n => n.trim() === 'قائمة المشرفين') || wb.SheetNames.find(n => n.includes('المشرفين') && !n.includes('عهد'));
+  if (!name) throw new Error('لم أجد شيت «قائمة المشرفين» في الملف');
+  const rows = window.XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1, defval: null, raw: true });
+  const clean = (v) => String(v ?? '').replace(/\s+/g, ' ').trim();
+  const hi = rows.findIndex(r => r.some(c => clean(c) === 'رقم الحساب') && r.some(c => clean(c) === 'الرصيد الحالي'));
+  if (hi < 0) throw new Error('لم أجد أعمدة «رقم الحساب» و«الرصيد الحالي» في شيت قائمة المشرفين');
+  const h = rows[hi].map(clean);
+  const ix = (t) => h.indexOf(t);
+  const c = { id: ix('رقم الحساب'), name: ix('اسم المشرف'), job: ix('الوظيفة'), status: ix('الحالة'), balance: ix('الرصيد الحالي'), region: ix('المنطقة') };
+  const out = [];
+  rows.slice(hi + 1).forEach(r => {
+    const id = r[c.id];
+    if (id === null || id === '' || isNaN(Number(id))) return;
+    out.push({
+      id: String(Math.round(Number(id))), name: clean(r[c.name]), job: c.job >= 0 ? clean(r[c.job]) : '',
+      status: c.status >= 0 ? clean(r[c.status]) : 'نشط', balance: r2(num(r[c.balance])), region: c.region >= 0 ? clean(r[c.region]) : ''
+    });
+  });
+  if (!out.length) throw new Error('شيت قائمة المشرفين فاضي');
+  return out;
+}
+
 /* ===================== الوضع التجريبي (بدون Apps Script) ===================== */
 const Demo = {
   db() {
@@ -600,7 +670,7 @@ const Demo = {
         const mine = d.exps.filter(e => e.username === u.username).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
         const spent = r2(mine.filter(e => e.status !== ST_DONE).reduce((s, e) => s + e.total, 0));
         const branches = d.emps.map(e => e.branch).filter((b, i, a) => b && a.indexOf(b) === i);
-        return { user: u, custody: u.custody, spent, balance: r2(u.custody - spent), expenses: mine, branches };
+        return { user: u, custody: u.custody, spent, balance: r2(u.custody - spent), expenses: mine, branches, lastSync: d.lastSync || '' };
       }
       case 'addExpense': {
         const u = this.user(d, r.token); const e = this.validate(r.expense); this.dup(d, e);
@@ -621,10 +691,21 @@ const Demo = {
           const spent = r2(open.reduce((s, x) => s + x.total, 0));
           return { name: e.name, username: e.username, branch: e.branch, supervisor: e.supervisor, custody: e.custody, spent, balance: r2(e.custody - spent), openCount: open.length };
         });
-        return { employees, supervisors: employees.map(e => e.supervisor).filter((s, i, a) => s && a.indexOf(s) === i), reimbursements: d.reimbs.slice().reverse() };
+        return { employees: employees.map(e => Object.assign(e, { hasLogin: !!d.emps.find(x => x.username === e.username && x.username) })), supervisors: employees.map(e => e.supervisor).filter((s, i, a) => s && a.indexOf(s) === i), reimbursements: d.reimbs.slice().reverse(), lastSync: d.lastSync || '' };
       }
       case 'exportData': {
         return { rows: d.exps.filter(x => (!r.supervisor || x.supervisor === r.supervisor) && (!r.from || x.invDate >= r.from) && (!r.to || x.invDate <= r.to) && (!r.onlyOpen || x.status !== ST_DONE)) };
+      }
+      case 'syncBalances': {
+        let updated = 0, added = 0;
+        if (!r.rows) throw new Error('الوضع التجريبي: اختر ملف الإكسل');
+        r.rows.forEach(x => {
+          const u = d.emps.find(e => e.id === x.id);
+          if (u) { u.custody = x.balance; updated++; }
+          else { d.emps.push({ id: x.id, name: x.name, username: '', pin: '', role: 'موظف', branch: x.region, supervisor: x.name, custody: x.balance }); added++; }
+        });
+        if (!r.rows) throw new Error('الوضع التجريبي: اختر ملف الإكسل');
+        d.lastSync = today(); this.save(d); return { updated, added, at: d.lastSync };
       }
       case 'reimburse': {
         const a = this.user(d, r.token);
