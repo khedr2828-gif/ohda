@@ -1332,6 +1332,7 @@ const LOGO = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAQDAwMDAgQ
 const PDF_URL = 'https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js';
 const H2C_URL = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
 const JSPDF_URL = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
+const EXCELJS_URL = 'https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js';
 const ROWS_PER_PAGE = 15;
 const fmtD = (d) => { const m = String(d || '').match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? `${m[3]}/${m[2]}/${m[1]}` : (d || ''); };
 const supName = (n) => String(n || '').replace(/^\s*عهد[ةه]?\s+/, '').trim();
@@ -1484,25 +1485,57 @@ async function settleXlsx() {
   busy(b, false);
 }
 async function settleXlsxBuild() {
-  await loadScript(XLSX_URL);
-  const X = window.XLSX; const st = S.settle; const rows = settleSelected();
+  await loadScript(EXCELJS_URL);
+  const st = S.settle; const rows = settleSelected();
   const t = new Date(); const dstr = `${String(t.getDate()).padStart(2, '0')}/${String(t.getMonth() + 1).padStart(2, '0')}/${t.getFullYear()}`;
-  const aoa = [
-    ['شركة ستار العربية'], ['Arabian Star Company'], ['بيان تفصيلي بتفريغ عهدة'], ['Custody Settlement Statement'], [],
-    ['عهدة السيد:', supName(st.name), '', '', 'التاريخ:', dstr], [],
-    ['م\nNo.', 'البيان\nDescription', 'الفرع\nBranch', 'رقم الفاتورة\nInvoice No.', 'المبلغ\nAmount', 'التاريخ\nDate']
-  ];
-  rows.forEach((r, i) => aoa.push([i + 1, r.desc + (r.vendor && r.kind !== 'مصروفات فرع' ? ' — ' + r.vendor : ''), r.branch || '', r.invNo || (r.kind === 'مصروفات فرع' ? 'قيد آلي' : r.id), r2(num(r.total)), fmtD(r.invDate)]));
-  const totRow = aoa.length;
-  aoa.push(['إجمالي المبلغ  Total Amount', '', '', '', r2(rows.reduce((a, r) => a + num(r.total), 0)), '']);
-  aoa.push([], ['إعداد  Prepared By', '', '', 'المراجعة والتدقيق  Review & Audit'], ['..............................', '', '', '..............................']);
-  const ws = X.utils.aoa_to_sheet(aoa);
-  ws['!cols'] = [{ wch: 6 }, { wch: 46 }, { wch: 16 }, { wch: 18 }, { wch: 14 }, { wch: 13 }];
-  ws['!merges'] = [0, 1, 2, 3].map(r => ({ s: { r, c: 0 }, e: { r, c: 5 } })).concat([{ s: { r: 5, c: 1 }, e: { r: 5, c: 3 } }, { s: { r: totRow, c: 0 }, e: { r: totRow, c: 3 } }]);
-  for (let r = 8; r <= totRow; r++) { const c = ws[X.utils.encode_cell({ r, c: 4 })]; if (c && typeof c.v === 'number') c.z = '#,##0.00'; }
-  const wb = X.utils.book_new(); wb.Workbook = { Views: [{ RTL: true }] };
-  X.utils.book_append_sheet(wb, ws, 'تفريغ عهدة');
-  X.writeFile(wb, settleFileName('xlsx'));
+  const wb = new window.ExcelJS.Workbook(); wb.creator = 'نظام العهد';
+  const ws = wb.addWorksheet('تفريغ عهدة', {
+    views: [{ rightToLeft: true, showGridLines: false }],
+    pageSetup: { paperSize: 9, orientation: 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: 0,
+      margins: { left: 0.4, right: 0.4, top: 0.4, bottom: 0.4, header: 0.2, footer: 0.2 } }
+  });
+  ws.columns = [{ width: 6 }, { width: 46 }, { width: 18 }, { width: 18 }, { width: 14 }, { width: 13 }];
+  const font = { name: 'Arial', size: 11 };
+  const thin = { style: 'thin', color: { argb: 'FF9AA09A' } };
+  const box = { top: thin, left: thin, bottom: thin, right: thin };
+  const C = { horizontal: 'center', vertical: 'middle', wrapText: true };
+  const put = (r, c, v, f) => { const cell = ws.getCell(r, c); cell.value = v; cell.font = Object.assign({}, font, f || {}); return cell; };
+  // الشعار والعنوان
+  try { const img = wb.addImage({ base64: LOGO, extension: 'jpeg' }); ws.addImage(img, { tl: { col: 5, row: 0.2 }, ext: { width: 85, height: 100 } }); } catch (e) {}
+  [[1, 'شركة ستار العربية', { bold: true, size: 16, color: { argb: 'FFB8202A' } }], [2, 'Arabian Star Company', { bold: true, size: 13, color: { argb: 'FFB8202A' }, name: 'Georgia' }],
+   [3, 'بيان تفصيلي بتفريغ عهدة', { bold: true, size: 13 }], [4, 'Custody Settlement Statement', { bold: true, size: 12, name: 'Georgia' }]]
+    .forEach(([r, v, f]) => { ws.mergeCells(r, 1, r, 5); put(r, 1, v, f).alignment = C; ws.getRow(r).height = 22; });
+  put(6, 1, 'عهدة السيد:', { bold: true }); ws.mergeCells(6, 2, 6, 3); put(6, 2, supName(st.name), { bold: true }).border = { bottom: { style: 'dotted' } };
+  put(6, 5, 'التاريخ:', { bold: true }).alignment = { horizontal: 'left' }; put(6, 6, dstr);
+  // رأس الجدول
+  const H = [['م', 'No.'], ['البيان', 'Description'], ['الفرع', 'Branch'], ['رقم الفاتورة', 'Invoice No.'], ['المبلغ', 'Amount'], ['التاريخ', 'Date']];
+  H.forEach(([a, e], i) => { const c = put(8, i + 1, { richText: [{ text: a + '\n', font: Object.assign({}, font, { bold: true }) }, { text: e, font: { name: 'Georgia', size: 9, bold: true } }] });
+    c.alignment = C; c.border = box; c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9DED9' } }; });
+  ws.getRow(8).height = 34;
+  let r = 9;
+  rows.forEach((x, i) => {
+    const vals = [i + 1, x.desc + (x.vendor && x.kind !== 'مصروفات فرع' ? ' — ' + x.vendor : ''), x.branch || '', x.invNo || (x.kind === 'مصروفات فرع' ? 'قيد آلي' : x.id), r2(num(x.total)), fmtD(x.invDate)];
+    vals.forEach((v, j) => { const c = put(r, j + 1, v); c.border = box; c.alignment = j === 1 ? { horizontal: 'right', vertical: 'middle', wrapText: true } : C; if (j === 4) c.numFmt = '#,##0.00'; });
+    ws.getRow(r).height = 22; r++;
+  });
+  // الإجمالي
+  ws.mergeCells(r, 1, r, 4);
+  const tl = put(r, 1, 'إجمالي المبلغ   Total Amount', { bold: true }); tl.alignment = C;
+  const tv = put(r, 5, rows.length ? { formula: `SUM(E9:E${r - 1})`, result: r2(rows.reduce((a, x) => a + num(x.total), 0)) } : 0, { bold: true });
+  tv.numFmt = '#,##0.00'; tv.alignment = C;
+  for (let c = 1; c <= 6; c++) { const cell = ws.getCell(r, c); cell.border = box; cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE8E8E8' } }; }
+  ws.getRow(r).height = 26;
+  // التوقيعات
+  r += 3;
+  put(r, 1, 'إعداد  Prepared By', { bold: true }); ws.mergeCells(r, 1, r, 2);
+  put(r, 4, 'المراجعة والتدقيق  Review & Audit', { bold: true }); ws.mergeCells(r, 4, r, 6);
+  r += 2;
+  [[1, 2], [4, 6]].forEach(([a, b]) => { ws.mergeCells(r, a, r, b); ws.getCell(r, a).border = { bottom: { style: 'dotted' } }; });
+  ws.pageSetup.printArea = `A1:F${r}`;
+  const buf = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = settleFileName('xlsx');
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
 }
 
 /* ===================== الوضع التجريبي (بدون Apps Script) ===================== */
