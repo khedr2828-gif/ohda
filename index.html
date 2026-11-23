@@ -85,7 +85,7 @@ input[dir=ltr]{text-align:right}
       <label class="f" for="lu">اسم المستخدم</label>
       <input id="lu" autocomplete="username" autocapitalize="none" dir="ltr" required>
       <label class="f" for="lp">الرمز السري</label>
-      <input id="lp" type="password" inputmode="numeric" autocomplete="current-password" dir="ltr" required>
+      <input id="lp" type="password" autocomplete="current-password" dir="ltr" required>
       <div id="loginErr"></div>
       <button class="btn" style="margin-top:16px" type="submit">دخول</button>
     </form>
@@ -212,7 +212,7 @@ input[dir=ltr]{text-align:right}
 /* ===================== الإعدادات ===================== */
 // ضع هنا رابط تطبيق الويب من Google Apps Script (ينتهي بـ /exec)
 // لو تركته فاضياً يعمل الموقع في "وضع تجريبي" على الجهاز فقط
-const API_URL = '';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxPdLrvBAVYyJ7Y0a9lL8MkWntamt-_O95Wl31MDgZODrSqUK0eVZQG9asC90J3fIs0/exec';
 
 const JSQR_URL = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js';
 const XLSX_URL = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
