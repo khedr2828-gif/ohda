@@ -528,7 +528,7 @@ const stLabel = (x) => isOpen(x) ? 'بانتظار الاستعاضة' : (x.stat
 /* ===================== أدوات ===================== */
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const num = (v) => { const n = parseFloat(String(v ?? '').replace(/,/g, '').replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))); return isNaN(n) ? 0 : n; };
+const num = (v) => { const n = parseFloat(String(v ?? '').replace(/,/g, '').replace(/٫/g, '.').replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))); return isNaN(n) ? 0 : n; };
 const r2 = (n) => Math.round(n * 100) / 100;
 const fmt = (n) => { const t = Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); return Number(n) < 0 ? '\u200E' + t : t; };
 const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
@@ -1339,7 +1339,8 @@ $('pBtn').addEventListener('click', async () => {
   busy(b, true, 'جارٍ التحميل');
   try {
     const d = await api('exportData', { username: user, from: $('pFrom').value, to: $('pTo').value, onlyOpen: $('pOpen').checked });
-    const rows = d.rows.slice().sort((a, c) => String(a.invDate).localeCompare(String(c.invDate)));
+    const rows = d.rows.map(r => Object.assign({}, r, { net: num(r.net), tax: num(r.tax), total: num(r.total) }))
+      .sort((a, c) => String(a.invDate).localeCompare(String(c.invDate)));
     const name = $('pUser').selectedOptions[0].textContent;
     S.settle = { rows, name, user, from: $('pFrom').value, to: $('pTo').value };
     renderSettleList();
@@ -1415,11 +1416,11 @@ function renderSettleList() {
 function buildSettlePages() {
   const st = S.settle; const rows = settleSelected();
   const pages = []; for (let i = 0; i < Math.max(rows.length, 1); i += ROWS_PER_PAGE) pages.push(rows.slice(i, i + ROWS_PER_PAGE));
-  const grand = r2(rows.reduce((a, r) => a + r.total, 0));
+  const grand = r2(rows.reduce((a, r) => a + num(r.total), 0));
   const today = new Date(); const dd = String(today.getDate()).padStart(2, '0'), mm = String(today.getMonth() + 1).padStart(2, '0');
   $('printArea').innerHTML = pages.map((pg, pi) => {
     const last = pi === pages.length - 1;
-    const pageTotal = r2(pg.reduce((a, r) => a + r.total, 0));
+    const pageTotal = r2(pg.reduce((a, r) => a + num(r.total), 0));
     const body = Array.from({ length: ROWS_PER_PAGE }, (_, k) => {
       const r = pg[k]; const n = pi * ROWS_PER_PAGE + k + 1;
       return r ? `<tr><td class="no">${n}</td><td class="desc">${esc(r.desc)}${r.vendor && r.kind !== 'مصروفات فرع' ? ' — ' + esc(r.vendor) : ''}</td><td>${esc(r.branch || '')}</td><td dir="ltr">${esc(r.invNo || (r.kind === 'مصروفات فرع' ? 'قيد آلي' : r.id))}</td><td dir="ltr">${fmt(r.total)}</td><td dir="ltr">${esc(fmtD(r.invDate))}</td></tr>`
@@ -1470,6 +1471,11 @@ async function settlePdf() {
 }
 
 async function settleXlsx() {
+  const b = $('pXls'); busy(b, true, 'جارٍ التجهيز');
+  try { await settleXlsxBuild(); } catch (e) { toast(e.message || 'تعذر إنشاء ملف Excel'); }
+  busy(b, false);
+}
+async function settleXlsxBuild() {
   await loadScript(XLSX_URL);
   const X = window.XLSX; const st = S.settle; const rows = settleSelected();
   const t = new Date(); const dstr = `${String(t.getDate()).padStart(2, '0')}/${String(t.getMonth() + 1).padStart(2, '0')}/${t.getFullYear()}`;
@@ -1478,9 +1484,9 @@ async function settleXlsx() {
     ['عهدة السيد:', supName(st.name), '', '', 'التاريخ:', dstr], [],
     ['م\nNo.', 'البيان\nDescription', 'الفرع\nBranch', 'رقم الفاتورة\nInvoice No.', 'المبلغ\nAmount', 'التاريخ\nDate']
   ];
-  rows.forEach((r, i) => aoa.push([i + 1, r.desc + (r.vendor && r.kind !== 'مصروفات فرع' ? ' — ' + r.vendor : ''), r.branch || '', r.invNo || (r.kind === 'مصروفات فرع' ? 'قيد آلي' : r.id), r.total, fmtD(r.invDate)]));
+  rows.forEach((r, i) => aoa.push([i + 1, r.desc + (r.vendor && r.kind !== 'مصروفات فرع' ? ' — ' + r.vendor : ''), r.branch || '', r.invNo || (r.kind === 'مصروفات فرع' ? 'قيد آلي' : r.id), r2(num(r.total)), fmtD(r.invDate)]));
   const totRow = aoa.length;
-  aoa.push(['إجمالي المبلغ  Total Amount', '', '', '', r2(rows.reduce((a, r) => a + r.total, 0)), '']);
+  aoa.push(['إجمالي المبلغ  Total Amount', '', '', '', r2(rows.reduce((a, r) => a + num(r.total), 0)), '']);
   aoa.push([], ['إعداد  Prepared By', '', '', 'المراجعة والتدقيق  Review & Audit'], ['..............................', '', '', '..............................']);
   const ws = X.utils.aoa_to_sheet(aoa);
   ws['!cols'] = [{ wch: 6 }, { wch: 46 }, { wch: 16 }, { wch: 18 }, { wch: 14 }, { wch: 13 }];
