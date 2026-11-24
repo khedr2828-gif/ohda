@@ -612,9 +612,23 @@ async function onPhoto(file) {
     $('photoPrev').src = img.src; $('photoPrev').classList.remove('hidden');
     S.image = drawScaled(img, 1400).toDataURL('image/jpeg', 0.72);
     S.source = 'يدوي'; S.items = [];
-    note(st, 'ok', 'جارٍ قراءة بيانات الفاتورة…');
+    await readNow();
+  } catch (e) {
+    note(st, 'err', e.message || 'تعذرت قراءة الصورة');
+  }
+  updateForm();
+}
+async function readNow() {
+  const st = $('qrStatus');
+  if (!S.image) return;
+  {
+    note(st, 'ok', 'جارٍ قراءة بيانات الفاتورة… (قد تأخذ حتى 30 ثانية)');
     let rd = null;
-    try { rd = await api('readInvoice', { image: S.image, kind: S.kind }); } catch (err) { note(st, 'warn', err.message); }
+    try { rd = await api('readInvoice', { image: S.image, kind: S.kind }); }
+    catch (err) {
+      st.innerHTML = `<div class="note warn">${esc(err.message)}</div><button type="button" class="btn sec" id="reRead" style="margin-top:8px">↻ إعادة القراءة</button>`;
+      $('reRead').addEventListener('click', readNow);
+    }
     if (rd && rd.enabled && rd.data && S.kind === 'br') {
       const d = rd.data;
       if (d.branch) { const mb = matchBranch(d.branch); if (mb) $('fBranch').value = mb; else note($('brHint'), 'warn', 'الفرع المقروء «' + d.branch + '» مش في فروعك — اختاره من القائمة'); }
@@ -638,11 +652,9 @@ async function onPhoto(file) {
       showSummary(got);
       $('fDesc').focus();
     } else if (rd && !rd.enabled) {
-      note(st, 'ok', 'تم إرفاق الفاتورة ✓ أدخل بياناتها واكتب البيان');
+      note(st, 'warn', 'القراءة التلقائية غير مفعّلة حالياً — تم إرفاق الصورة، أدخل البيانات يدوياً');
       $('fVendor').focus();
     }
-  } catch (e) {
-    note(st, 'err', e.message || 'تعذرت قراءة الصورة');
   }
   updateForm();
 }
