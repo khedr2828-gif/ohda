@@ -14,6 +14,10 @@
 body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
 .app{max-width:480px;margin:0 auto;min-height:100vh;padding:0 16px 40px}
 .app.wide{max-width:1180px}
+#imgBox{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:60;display:flex;align-items:center;justify-content:center;padding:16px}
+#imgBox img{max-width:100%;max-height:100%;border-radius:8px;background:#fff}
+#imgBox button{position:absolute;top:14px;left:14px}
+.tsum{cursor:pointer}.tsum.on td{background:var(--gl)}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px}
 .kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px}
 .kpi .l{font-size:12px;color:var(--mut)}
@@ -257,6 +261,7 @@ body.dark .balance{background:#0B5A41}
       <span style="flex:1"><b>تسجيل مصروف جديد</b><span class="sub">صوّر الفاتورة وسيتم قراءتها تلقائياً</span></span>
     </button>
     <div id="lowBal"></div>
+    <button class="btn hidden" type="button" id="teamBtn" style="margin-bottom:10px">مصروفات فريقي</button>
     <div class="two" style="margin-bottom:18px">
       <button class="btn sec" type="button" id="topBtn">طلب تعزيز عهدة</button>
       <button class="btn sec" type="button" id="monBtn">ملخص الشهر</button>
@@ -287,6 +292,30 @@ body.dark .balance{background:#0B5A41}
     <header class="bar"><button class="iconbtn" data-home aria-label="رجوع"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button><h1>ملخص الشهر</h1><span style="width:44px"></span></header>
     <div class="card"><label class="f" for="mSel" style="margin-top:0">الشهر</label><select id="mSel"></select></div>
     <div id="mBody"></div>
+  </section>
+
+  <!-- ============ مصروفات الفريق (مدير منطقة / مدير عمليات) ============ -->
+  <section id="v-team" class="hidden">
+    <header class="bar"><button class="iconbtn" data-home aria-label="رجوع"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button><div style="text-align:center"><div class="sub" id="tSub"></div><h1 id="tTitle">مصروفات فريقي</h1></div>
+      <button class="iconbtn" id="tRefresh" aria-label="تحديث"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg></button></header>
+    <div class="kpis" id="tKpis"></div>
+    <div class="card">
+      <h2 id="tTeamH">المشرفين</h2>
+      <input id="tQ2" type="search" placeholder="ابحث باسم المشرف…" autocomplete="off" style="margin-bottom:8px">
+      <div class="scroll"><table class="tbl" id="tTeam"></table></div>
+    </div>
+    <div class="card">
+      <h2>المصروفات</h2>
+      <div class="filters">
+        <div><label class="f" for="tUser">المشرف</label><select id="tUser"></select></div>
+        <div><label class="f" for="tStatus">الحالة</label><select id="tStatus"><option value="open">لم تُصفَّ بعد</option><option value="done">تمت تصفيتها</option><option value="">الكل</option></select></div>
+        <div><label class="f" for="tFrom">من تاريخ</label><input id="tFrom" type="date"></div>
+        <div><label class="f" for="tTo">إلى تاريخ</label><input id="tTo" type="date"></div>
+        <div><label class="f" for="tQ">بحث</label><input id="tQ" placeholder="بيان، مورد، فرع، رقم…"></div>
+      </div>
+      <div id="tSum" style="margin-top:10px"></div>
+      <div class="scroll" style="margin-top:10px"><table class="tbl" id="tTbl"></table></div>
+    </div>
   </section>
 
   <!-- ============ الإعدادات ============ -->
@@ -406,6 +435,7 @@ body.dark .balance{background:#0B5A41}
     </form>
   </section>
 
+  <div id="imgBox" class="hidden" role="dialog" aria-label="صورة الفاتورة"><button class="iconbtn" type="button" id="imgClose" aria-label="إغلاق">✕</button><img id="imgEl" alt="صورة الفاتورة"></div>
   <footer id="credit" class="credit">إعداد: محمود خضر</footer>
 
   <!-- ============ الأدمن ============ -->
@@ -662,9 +692,9 @@ async function readNow() {
 /* ===================== الشاشات ===================== */
 const isAdmin = () => S.me && S.me.user && S.me.user.role === 'أدمن';
 function show(v) {
-  ['login', 'reg', 'home', 'form', 'admin', 'topup', 'month', 'settings'].forEach(x => $('v-' + x).classList.toggle('hidden', x !== v));
-  document.querySelector('.app').classList.toggle('wide', v === 'admin');
-  $('credit').classList.toggle('hidden', v === 'admin');
+  ['login', 'reg', 'home', 'form', 'admin', 'topup', 'month', 'settings', 'team'].forEach(x => $('v-' + x).classList.toggle('hidden', x !== v));
+  document.querySelector('.app').classList.toggle('wide', v === 'admin' || v === 'team');
+  $('credit').classList.toggle('hidden', v === 'admin' || v === 'team');
   window.scrollTo(0, 0);
 }
 
@@ -708,6 +738,9 @@ function renderHome() {
   $('hSpent').textContent = fmt(m.spent);
   $('hSync').textContent = m.lastSync ? 'رصيد الدفتر محدّث في ' + m.lastSync : '';
   renderLowBal();
+  const lv = m.user.level;
+  $('teamBtn').classList.toggle('hidden', lv !== 'ops' && lv !== 'area');
+  $('teamBtn').textContent = lv === 'ops' ? 'كل مصروفات المشرفين' : 'مصروفات المشرفين التابعين لي';
   S.tab = S.tab || 'open';
   const groups = { open: m.expenses.filter(isOpen), done: m.expenses.filter(x => !isOpen(x)), all: m.expenses };
   const sumOf = (a) => fmt(r2(a.reduce((t, x) => t + x.total, 0)));
@@ -731,6 +764,78 @@ function renderHome() {
 }
 $('refreshBtn').addEventListener('click', async () => { try { await loadMe(); toast('تم التحديث'); } catch (e) { toast(e.message); } });
 $('addBtn').addEventListener('click', () => openForm(null));
+
+/* ---------- مصروفات الفريق (عرض فقط) ---------- */
+async function loadTeam() {
+  $('tSum').innerHTML = '<div class="note ok">جارٍ تحميل المصروفات…</div>';
+  S.team = await api('teamData');
+  const t = S.team, ops = t.level === 'ops';
+  $('tTitle').textContent = ops ? 'كل المصروفات' : 'مصروفات فريقي';
+  $('tSub').textContent = ops ? 'مدير العمليات' : 'مدير المنطقة';
+  $('tTeamH').textContent = ops ? 'كل الموظفين' : 'المشرفين التابعين لك';
+  const cur = $('tUser').value;
+  const withLogin = t.employees.filter(e => e.hasLogin);
+  $('tUser').innerHTML = jobOptions(withLogin, true).replace('كل الموظفين', ops ? 'كل الموظفين' : 'كل المشرفين');
+  $('tUser').value = withLogin.some(e => e.username === cur) ? cur : '';
+  const openAmt = r2(withLogin.reduce((a, e) => a + e.spent, 0)), openCnt = withLogin.reduce((a, e) => a + e.openCount, 0);
+  $('tKpis').innerHTML = `
+    <div class="kpi"><div class="l">${ops ? 'الموظفين' : 'المشرفين'}</div><div class="v">${withLogin.length}</div><div class="s">لهم دخول على البرنامج</div></div>
+    <div class="kpi"><div class="l">بانتظار الاستعاضة</div><div class="v">${fmt(openAmt)}</div><div class="s">${openCnt} مصروف</div></div>
+    <div class="kpi"><div class="l">مجموع الأرصدة</div><div class="v">${fmt(r2(withLogin.reduce((a, e) => a + e.balance, 0)))}</div><div class="s">ر.س</div></div>
+    <div class="kpi"><div class="l">رصيد بالسالب</div><div class="v" style="color:var(--red)">${withLogin.filter(e => e.balance < 0).length}</div><div class="s">مشرف</div></div>`;
+  renderTeamList(); renderTeamExp();
+}
+function renderTeamList() {
+  const t = S.team; if (!t) return;
+  const q = normAr($('tQ2').value.trim());
+  const list = t.employees.filter(e => !q || normAr(e.name).includes(q)).sort((a, b) => (b.hasLogin - a.hasLogin) || (b.spent - a.spent));
+  $('tTeam').innerHTML = '<tr><th>الاسم</th><th>رصيد الدفتر</th><th>بانتظار الاستعاضة</th><th>الرصيد</th></tr>' + (list.map(e => `
+    <tr class="tsum ${e.username && $('tUser').value === e.username ? 'on' : ''}" ${e.hasLogin ? `data-u="${esc(e.username)}"` : ''}>
+      <td>${esc(supName(e.name))}<div class="sub">${esc(e.job || '')}${e.hasLogin ? '' : ' · <span style="color:var(--warn)">لم يسجل في البرنامج</span>'}</div></td>
+      <td>${fmt(e.custody)}</td><td>${fmt(e.spent)}<div class="sub">${e.openCount} مصروف</div></td>
+      <td style="font-weight:700;color:${e.balance < 0 ? 'var(--red)' : 'var(--g2)'}">${fmt(e.balance)}</td></tr>`).join('') ||
+    `<tr><td colspan="4" class="sub">${t.level === 'area' ? 'لم يتم ربط مشرفين بك بعد — راجع الإدارة' : 'لا يوجد موظفين'}</td></tr>`);
+  $('tTeam').querySelectorAll('[data-u]').forEach(r => r.addEventListener('click', () => {
+    $('tUser').value = $('tUser').value === r.dataset.u ? '' : r.dataset.u; renderTeamList(); renderTeamExp();
+    $('tTbl').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }));
+}
+function renderTeamExp() {
+  const t = S.team; if (!t) return;
+  const f = { u: $('tUser').value, st: $('tStatus').value, from: $('tFrom').value, to: $('tTo').value, q: $('tQ').value.trim().toLowerCase() };
+  const rows = t.expenses.filter(r => (!f.u || r.username === f.u) &&
+    (!f.st || (f.st === 'open' ? r.status !== ST_DONE : r.status === ST_DONE)) &&
+    (!f.from || r.invDate >= f.from) && (!f.to || r.invDate <= f.to) &&
+    (!f.q || [r.desc, r.vendor, r.branch, r.invNo, r.id, r.vat, r.empName].join(' ').toLowerCase().includes(f.q)));
+  const tot = r2(rows.reduce((a, r) => a + r.total, 0));
+  $('tSum').innerHTML = `<div class="note ok">${rows.length} مصروف — الإجمالي ${fmt(tot)} ر.س</div>`;
+  $('tTbl').innerHTML = '<tr><th>التاريخ</th><th>المشرف</th><th>البيان</th><th>الفرع</th><th>المبلغ</th><th>الحالة</th><th>الفاتورة</th></tr>' +
+    rows.map(r => `<tr class="${r.status === ST_DONE ? 'done' : ''}">
+      <td dir="ltr" style="white-space:nowrap">${esc(fmtD(r.invDate))}</td>
+      <td>${esc(supName(r.empName))}</td>
+      <td>${esc(r.desc)}<div class="sub">${r.kind === 'مصروفات فرع' ? 'مصروفات فرع' + (r.upTo ? ' حتى ' + esc(fmtD(r.upTo)) : '') : esc(r.vendor) + (r.invNo ? ' · رقم ' + esc(r.invNo) : '')}</div></td>
+      <td>${esc(r.branch || '')}</td>
+      <td style="font-weight:700;white-space:nowrap">${fmt(r.total)}${r.tax ? '<div class="sub">ضريبة ' + fmt(r.tax) + '</div>' : ''}</td>
+      <td style="white-space:nowrap">${esc(stLabel(r))}</td>
+      <td>${r.hasImage ? `<button type="button" class="mini" data-img="${esc(r.id)}">عرض</button>` : '<span class="sub">—</span>'}</td></tr>`).join('');
+  $('tTbl').querySelectorAll('[data-img]').forEach(b => b.addEventListener('click', () => showImg(b, b.dataset.img)));
+}
+async function showImg(b, id) {
+  busy(b, true, '…');
+  try { const r = await api('expImage', { id }); $('imgEl').src = r.url; $('imgBox').classList.remove('hidden'); }
+  catch (e) { toast(e.message); }
+  busy(b, false);
+}
+$('imgClose').addEventListener('click', () => { $('imgBox').classList.add('hidden'); $('imgEl').removeAttribute('src'); });
+$('imgBox').addEventListener('click', (ev) => { if (ev.target === $('imgBox')) $('imgClose').click(); });
+$('teamBtn').addEventListener('click', async () => {
+  show('team');
+  try { await loadTeam(); } catch (e) { note($('tSum'), 'err', e.message); }
+});
+$('tRefresh').addEventListener('click', async () => { try { await loadTeam(); toast('تم التحديث'); } catch (e) { toast(e.message); } });
+['tUser', 'tStatus', 'tFrom', 'tTo'].forEach(id => $(id).addEventListener('change', () => { renderTeamList(); renderTeamExp(); }));
+$('tQ').addEventListener('input', renderTeamExp);
+$('tQ2').addEventListener('input', renderTeamList);
 
 /* ---------- نموذج المصروف ---------- */
 function setKind(k) {
@@ -946,20 +1051,35 @@ function renderSupTbl() {
     JOB_GROUPS.filter(([k]) => cnt(k)).map(([k, l]) => `<button type="button" class="chip" data-job="${k}" style="${S.jobF === k ? 'background:var(--gl);border-color:var(--g)' : ''}">${l} (${cnt(k)})</button>`).join('');
   $('jobChips').querySelectorAll('[data-job]').forEach(b => b.addEventListener('click', () => { S.jobF = b.dataset.job; renderSupTbl(); }));
   const list = d.employees.filter(e => (!S.jobF || jobKey(e.job) === S.jobF) && (!q || e.name.includes(q) || String(e.username || '').toLowerCase().includes(q.toLowerCase())));
+  const mgrs = d.employees.filter(e => e.level === 'area' && e.id);
   const row = (e) => `<tr><td>${esc(supName(e.name))}<div class="sub">${esc(jobKey(e.job) === 'other' ? (e.job || 'بدون وظيفة') : '')}</div></td>
       <td>${e.hasLogin ? '<span dir="ltr">' + esc(e.username) + '</span>' : '<span style="color:var(--warn)">بدون دخول</span>'}</td>
       <td>${fmt(e.custody)}</td><td>${fmt(e.spent)}<div class="sub">${e.openCount} مصروف</div></td>
-      <td style="font-weight:700;color:${e.balance < 0 ? 'var(--red)' : 'var(--g2)'}">${fmt(e.balance)}</td></tr>`;
-  let html = '<tr><th>الاسم</th><th>الدخول</th><th>رصيد الدفتر</th><th>بانتظار الاستعاضة</th><th>الرصيد</th></tr>';
+      <td style="font-weight:700;color:${e.balance < 0 ? 'var(--red)' : 'var(--g2)'}">${fmt(e.balance)}</td>
+      <td>${e.id ? `<select class="acc" data-id="${esc(e.id)}" data-k="role" aria-label="صلاحية ${esc(supName(e.name))}">${[['emp', 'موظف', 'موظف'], ['area', 'مدير منطقة', 'مدير منطقة'], ['ops', 'مدير عمليات', 'مدير عمليات']].map(([lv, v, l]) => `<option value="${v}" ${e.level === lv ? 'selected' : ''}>${l}</option>`).join('')}</select>` : ''}</td>
+      <td>${e.id && e.level !== 'ops' ? `<select class="acc" data-id="${esc(e.id)}" data-k="mgr" aria-label="مدير منطقة ${esc(supName(e.name))}"><option value="">—</option>${mgrs.filter(m => m.id !== e.id).map(m => `<option value="${esc(m.id)}" ${mgrMatch(e.mgr, m) ? 'selected' : ''}>${esc(supName(m.name))}</option>`).join('')}</select>` : ''}</td></tr>`;
+  let html = '<tr><th>الاسم</th><th>الدخول</th><th>رصيد الدفتر</th><th>بانتظار الاستعاضة</th><th>الرصيد</th><th>الصلاحية</th><th>مدير المنطقة</th></tr>';
   JOB_GROUPS.forEach(([k, l]) => {
     const g = list.filter(e => jobKey(e.job) === k).sort((a, b) => (b.hasLogin - a.hasLogin) || (a.balance - b.balance));
     if (!g.length) return;
     const tot = (f) => fmt(r2(g.reduce((t, e) => t + e[f], 0)));
-    html += `<tr><td colspan="5" style="background:var(--gl);color:var(--g2);font-weight:700">${l} <span class="sub">(${g.length})</span></td></tr>` + g.map(row).join('') +
-      `<tr style="font-weight:700"><td>إجمالي ${l}</td><td></td><td>${tot('custody')}</td><td>${tot('spent')}</td><td>${tot('balance')}</td></tr>`;
+    html += `<tr><td colspan="7" style="background:var(--gl);color:var(--g2);font-weight:700">${l} <span class="sub">(${g.length})</span></td></tr>` + g.map(row).join('') +
+      `<tr style="font-weight:700"><td>إجمالي ${l}</td><td></td><td>${tot('custody')}</td><td>${tot('spent')}</td><td>${tot('balance')}</td><td></td><td></td></tr>`;
   });
   $('empTbl').innerHTML = list.length ? html : '<tr><td class="sub">لا يوجد موظفين — استورد من دفتر العهد</td></tr>';
+  $('empTbl').querySelectorAll('select.acc').forEach(sel => sel.addEventListener('change', async () => {
+    sel.disabled = true;
+    try {
+      await api('setAccess', { id: sel.dataset.id, [sel.dataset.k]: sel.value });
+      const e = d.employees.find(x => x.id === sel.dataset.id);
+      if (sel.dataset.k === 'role') { e.level = { 'مدير منطقة': 'area', 'مدير عمليات': 'ops' }[sel.value] || 'emp'; }
+      else { const m = d.employees.find(x => x.id === sel.value); e.mgr = m ? m.name : ''; }
+      toast('تم الحفظ ✓'); renderSupTbl();
+    } catch (err) { toast(err.message); sel.disabled = false; }
+  }));
 }
+const normMgr = (s) => String(s || '').replace(/^\s*عهد[ةه]?\s+/, '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/\s+/g, '').trim().toLowerCase();
+const mgrMatch = (v, m) => String(v || '').split(/[،,]/).map(t => t.trim()).filter(Boolean).some(t => t === m.id || t.toLowerCase() === String(m.username || '').toLowerCase() || normMgr(t) === normMgr(m.name));
 $('supQ').addEventListener('input', renderSupTbl);
 
 /* ---------- تسجيل مشرف جديد ---------- */
@@ -1567,6 +1687,7 @@ const Demo = {
     return d;
   },
   save(d) { store.set('ohda_demo', d); },
+  level(u) { return u.role === 'أدمن' ? 'admin' : u.role === 'مدير عمليات' ? 'ops' : (u.role === 'مدير منطقة' || ((!u.role || u.role === 'موظف') && u.job === 'مدير منطقة')) ? 'area' : 'emp'; },
   user(d, token) { const u = d.emps.find(e => e.username === token); if (!u) throw new Error('سجّل الدخول أولاً'); return u; },
   validate(e) {
     const o = { invNo: String(e.invNo || ''), invDate: String(e.invDate || ''), vendor: String(e.vendor || '').trim(), vat: String(e.vat || ''), net: r2(num(e.net)), tax: r2(num(e.tax)), desc: String(e.desc || '').trim(), branch: e.branch, source: e.source };
@@ -1590,7 +1711,7 @@ const Demo = {
         const u = d.emps.find(e => e.username === String(r.username).trim().toLowerCase() && e.pin === String(r.pin).trim());
         if (u && u.active === 'بانتظار الموافقة') throw new Error('حسابك بانتظار موافقة الإدارة');
         if (!u) throw new Error('اسم المستخدم أو الرمز غير صحيح');
-        return { token: u.username, user: u };
+        return { token: u.username, user: Object.assign({}, u, { level: Demo.level(u) }) };
       }
       case 'me': {
         const u = this.user(d, r.token);
@@ -1598,7 +1719,7 @@ const Demo = {
         const spent = r2(mine.filter(e => e.status !== ST_DONE).reduce((s, e) => s + e.total, 0));
         const branches = (d.brs || []).concat(d.emps.map(e => e.branch)).filter((b, i, a) => b && a.indexOf(b) === i);
         u.myBranches = u.myBranches || [];
-        return { user: u, custody: u.custody, spent, balance: r2(u.custody - spent), expenses: mine, branches, lastSync: d.lastSync || '', topups: (d.tops || []).filter(t => t.username === u.username).reverse() };
+        return { user: Object.assign({}, u, { level: Demo.level(u) }), custody: u.custody, spent, balance: r2(u.custody - spent), expenses: mine, branches, lastSync: d.lastSync || '', topups: (d.tops || []).filter(t => t.username === u.username).reverse() };
       }
       case 'addExpense': {
         const u = this.user(d, r.token); const e = this.validate(r.expense); this.dup(d, e);
@@ -1618,7 +1739,7 @@ const Demo = {
         const employees = d.emps.filter(e => e.role !== 'أدمن' && e.active !== 'بانتظار الموافقة').map(e => {
           const open = d.exps.filter(x => x.username === e.username && x.status !== ST_DONE);
           const spent = r2(open.reduce((s, x) => s + x.total, 0));
-          return { name: e.name, username: e.username, branch: e.branch, supervisor: e.supervisor, custody: e.custody, spent, balance: r2(e.custody - spent), openCount: open.length, job: e.job || '' };
+          return { name: e.name, username: e.username, branch: e.branch, supervisor: e.supervisor, custody: e.custody, spent, balance: r2(e.custody - spent), openCount: open.length, job: e.job || '', id: e.id || '', mgr: e.mgr || '', level: Demo.level(e) };
         });
         return { employees: employees.map(e => Object.assign(e, { hasLogin: !!d.emps.find(x => x.username === e.username && x.username) })), supervisors: employees.map(e => e.supervisor).filter((s, i, a) => s && a.indexOf(s) === i), reimbursements: d.reimbs.slice().reverse(), lastSync: d.lastSync || '', pending, topups: (d.tops || []).slice().reverse(), branches: (d.brs || []).concat(d.emps.map(e => e.branch)).filter((b, i, a) => b && a.indexOf(b) === i) };
       }
@@ -1626,6 +1747,20 @@ const Demo = {
         return { rows: d.exps.filter(x => (!r.supervisor || x.supervisor === r.supervisor) && (!r.username || x.username === r.username) && (!r.from || x.invDate >= r.from) && (!r.to || x.invDate <= r.to) && (!r.onlyOpen || isOpen(x))) };
       }
       case 'readInvoice': return { enabled: false };
+      case 'teamData': {
+        const u = this.user(d, r.token); const lv = Demo.level(u); if (lv === 'emp') throw new Error('ليس لديك صلاحية عرض مصروفات الفريق');
+        const team = d.emps.filter(e => e.role !== 'أدمن' && (lv === 'ops' || e.mgr === u.name || e.username === u.username));
+        const employees = team.map(e => { const open = d.exps.filter(x => x.username === e.username && x.status !== ST_DONE); const spent = r2(open.reduce((s, x) => s + x.total, 0));
+          return { name: e.name, username: e.username || '', job: e.job || '', hasLogin: !!e.username, custody: e.custody, spent, balance: r2(e.custody - spent), openCount: open.length }; });
+        const us = team.map(e => e.username).filter(Boolean);
+        return { level: lv, employees, expenses: d.exps.filter(x => us.includes(x.username)).map(x => Object.assign({}, x, { hasImage: !!x.image })).sort((a, b) => b.invDate.localeCompare(a.invDate)) };
+      }
+      case 'expImage': throw new Error('الوضع التجريبي: الصور غير محفوظة');
+      case 'setAccess': {
+        const e = d.emps.find(x => x.id === r.id); if (!e) throw new Error('الموظف غير موجود');
+        if (r.role !== undefined) e.role = r.role; if (r.mgr !== undefined) { const m = d.emps.find(x => x.id === r.mgr); e.mgr = m ? m.name : ''; }
+        this.save(d); return { ok: true };
+      }
       case 'requestTopup': {
         const u = this.user(d, r.token); d.tops = d.tops || [];
         if (d.tops.some(t => t.username === u.username && t.status === 'جديد')) throw new Error('عندك طلب لسه تحت المراجعة');
