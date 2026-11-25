@@ -27,13 +27,18 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans A
 .atabs button{white-space:nowrap;padding:0 10px;display:flex;align-items:center;justify-content:center;gap:6px}
 .atabs button svg{flex:none}
 @media (min-width:900px){
-  .alay{display:grid;grid-template-columns:210px 1fr;gap:16px;align-items:start}
+  .alay{display:grid;grid-template-columns:240px 1fr;gap:16px;align-items:start}
   .tabs.atabs{flex-direction:column;position:sticky;top:12px;margin:0;padding:8px;background:#fff;border:1px solid var(--line);border-radius:16px;gap:4px;overflow:visible}
   .tabs.atabs button{flex:none;justify-content:flex-start;min-height:46px;padding:0 14px;font-size:14px;white-space:normal;text-align:right}
   .tabs.atabs button.on{background:var(--gl);color:var(--g2);box-shadow:none}
   .amain{min-width:0}
 }
-@media (max-width:899px){.atabs button svg{display:none}}
+@media (max-width:899px){.atabs button svg{display:none}.asub{display:none}}
+.asub{display:flex;flex-direction:column;gap:2px;margin:2px 14px 6px 0;padding-right:12px;border-right:2px solid var(--line)}
+.tabs.atabs .asub button{min-height:38px;font-size:13px;font-weight:500;padding:0 10px;border-radius:9px;color:var(--mut);background:none;text-align:right;justify-content:flex-start}
+.tabs.atabs .asub button:hover{background:var(--bg)}
+.tabs.atabs .asub button.on{color:var(--g2);font-weight:700;background:none;box-shadow:none;border-right:3px solid var(--g);margin-right:-14px;padding-right:21px;border-radius:0}
+@media (min-width:900px){.subhide{display:none!important}}
 .filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0 10px}
 .tbl td .mini{min-height:36px;padding:0 10px;border-radius:10px;border:1px solid #DDE3E0;background:#fff;font:inherit;font-size:12px;font-weight:600;color:var(--ink);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
 @media (max-width:700px){
@@ -1402,7 +1407,29 @@ $('aTabs').querySelectorAll('[data-at]').forEach(b => b.addEventListener('click'
   $('aTabs').querySelectorAll('[data-at]').forEach(x => x.classList.toggle('on', x === b));
   document.querySelectorAll('#v-admin .apane').forEach(p => p.classList.toggle('hidden', p.dataset.pane !== b.dataset.at));
   if (b.dataset.at === 'exp' && !S.allExp) loadAllExp();
+  renderSubNav();
 }));
+
+/* ---------- العناوين الفرعية في القائمة الجانبية ---------- */
+S.sub = S.sub || {};
+function renderSubNav() {
+  $('aTabs').querySelectorAll('.asub').forEach(x => x.remove());
+  const on = $('aTabs').querySelector('[data-at].on'); if (!on) return;
+  const pane = document.querySelector(`#v-admin .apane[data-pane="${on.dataset.at}"]`);
+  const cards = [...pane.querySelectorAll(':scope > .card')];
+  cards.forEach((c, i) => { if (!c.dataset.sub) c.dataset.sub = on.dataset.at + '-' + i; });
+  const vis = cards.filter(c => !c.classList.contains('hidden'));
+  if (!vis.some(c => c.dataset.sub === S.sub[on.dataset.at])) S.sub[on.dataset.at] = vis[0] && vis[0].dataset.sub;
+  const cur = S.sub[on.dataset.at];
+  cards.forEach(c => c.classList.toggle('subhide', vis.length > 1 && c.dataset.sub !== cur));
+  if (vis.length < 2) return;
+  const box = document.createElement('div'); box.className = 'asub';
+  box.innerHTML = vis.map(c => `<button type="button" data-sub="${c.dataset.sub}" class="${c.dataset.sub === cur ? 'on' : ''}">${esc(c.querySelector('h2') ? c.querySelector('h2').textContent : '')}</button>`).join('');
+  on.after(box);
+  box.querySelectorAll('[data-sub]').forEach(x => x.addEventListener('click', () => { S.sub[on.dataset.at] = x.dataset.sub; renderSubNav(); window.scrollTo({ top: 0, behavior: 'smooth' }); }));
+}
+new MutationObserver(() => { clearTimeout(S._subT); S._subT = setTimeout(renderSubNav, 50); })
+  .observe($('v-admin'), { subtree: true, attributes: true, attributeFilter: ['class'], childList: false });
 async function loadAllExp() {
   $('eSum').innerHTML = '<div class="note ok">جارٍ تحميل المصروفات…</div>';
   try { S.allExp = (await api('exportData', {})).rows; renderExp(); }
