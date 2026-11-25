@@ -27,7 +27,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans A
 .rq{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:8px;background:var(--card)}
 .rq .h{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
 .rq .st{font-size:11px;font-weight:700;padding:2px 10px;border-radius:999px;white-space:nowrap}
-.st-wait{background:var(--warnbg);color:var(--warn)}.st-ok{background:var(--gl);color:var(--g2)}.st-no{background:var(--redbg);color:var(--red)}
+.st-wait{background:var(--warnbg);color:var(--warn)}.tag.st-appr,.st-appr{background:#E4EEFA;color:#1F5FA8}.tag.st-done,.st-done{background:var(--soft);color:var(--mut)}
+body.dark .st-appr{background:#13263D;color:#8DBEF0}.st-ok{background:var(--gl);color:var(--g2)}.st-no{background:var(--redbg);color:var(--red)}
 .wa{background:#25D366!important;color:#fff!important;border:0!important}
 .switch{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;font-size:14px}
 .switch input{width:44px;height:24px;accent-color:var(--g)}
@@ -104,6 +105,7 @@ button.row{cursor:pointer}
 .row .amt{font-weight:700;color:var(--ink);direction:ltr;font-variant-numeric:tabular-nums}
 .tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--gl);color:var(--g2)}
 .tag.done{background:var(--soft);color:var(--mut)}
+.tag.st-wait{background:var(--warnbg);color:var(--warn)}
 label.f{display:block;font-size:13px;color:var(--mut);margin:12px 0 6px}
 input,select,textarea{width:100%;height:48px;border-radius:12px;border:1px solid var(--line2);padding:0 12px;font:inherit;font-size:16px;color:var(--ink);background:var(--field)}
 textarea{height:auto;min-height:84px;padding:10px 12px;resize:vertical}
@@ -298,7 +300,8 @@ body.dark .balance{background:#0B5A41}
         <div>رصيد دفتر العهدة<b id="hCustody">—</b></div>
         <div>مصروفات لم تُرحَّل بعد<b id="hSpent">—</b></div>
       </div>
-      <div id="hSync" style="font-size:12px;opacity:.85;margin-top:10px"></div>
+      <div style="font-size:12px;opacity:.9;margin-top:10px">الرصيد الحالي = رصيد دفتر العهدة − المصروفات اللي لسه ما اترحّلتش للدفتر</div>
+      <div id="hSync" style="font-size:12px;opacity:.85;margin-top:4px"></div>
     </div>
     <button class="addbtn" id="addBtn">
       <span class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8a2 2 0 0 1 2-2h2.5l1.5-2h6l1.5 2H19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="4"/></svg></span>
@@ -325,6 +328,9 @@ body.dark .balance{background:#0B5A41}
       <input id="tAmt" inputmode="decimal" dir="ltr" required>
       <label class="f" for="tReason">السبب</label>
       <textarea id="tReason" placeholder="مثال: مصروفات الفروع للأسبوع القادم" required></textarea>
+      <label class="f">الاستعجال</label>
+      <div class="tabs" id="tUrg" style="margin:0"><button type="button" data-u="عادي" class="on">عادي</button><button type="button" data-u="عاجل">عاجل</button></div>
+      <label class="f" for="tFile">مرفق (اختياري)</label><input id="tFile" type="file" accept="image/*,application/pdf" style="padding:10px;height:auto">
       <div id="topErr"></div>
       <button class="btn" style="margin-top:14px" type="submit">إرسال الطلب</button>
     </form>
@@ -353,7 +359,7 @@ body.dark .balance{background:#0B5A41}
       <h2>المصروفات</h2>
       <div class="filters">
         <div><label class="f" for="tUser">المشرف</label><select id="tUser"></select></div>
-        <div><label class="f" for="tStatus">الحالة</label><select id="tStatus"><option value="open">لم تُصفَّ بعد</option><option value="done">تمت تصفيتها</option><option value="">الكل</option></select></div>
+        <div><label class="f" for="tStatus">الحالة</label><select id="tStatus"><option value="open">بانتظار التصفية</option><option value="done">مُرحّل</option><option value="">الكل</option></select></div>
         <div><label class="f" for="tFrom">من تاريخ</label><input id="tFrom" type="date"></div>
         <div><label class="f" for="tTo">إلى تاريخ</label><input id="tTo" type="date"></div>
         <div><label class="f" for="tQ">بحث</label><input id="tQ" placeholder="بيان، مورد، فرع، رقم…"></div>
@@ -493,6 +499,7 @@ body.dark .balance{background:#0B5A41}
       <textarea id="fDesc" placeholder="اكتب بيان المصروف…" required></textarea>
       <div id="suggWrap" class="hidden"><div class="sub" style="margin-top:8px">اقتراحات من أصناف الفاتورة وبيانات سابقة — اضغط لاستخدامها</div><div class="chips" id="sugg"></div></div>
       <label class="f" for="fBranch">الفرع</label>
+      <input id="fBrQ" type="search" placeholder="ابحث عن الفرع…" autocomplete="off" aria-label="بحث عن فرع" style="margin-bottom:6px">
       <select id="fBranch"></select>
       <div id="brHint"></div>
       <div class="impact">
@@ -538,7 +545,7 @@ body.dark .balance{background:#0B5A41}
         <div class="filters">
           <div><label class="f" for="eJob">الوظيفة</label><select id="eJob"></select></div>
           <div><label class="f" for="eUser">الموظف</label><select id="eUser"></select></div>
-          <div><label class="f" for="eStatus">الحالة</label><select id="eStatus"><option value="open">بانتظار الاستعاضة</option><option value="appr">معتمد — لم يُرحَّل</option><option value="done">مُرحّل</option><option value="">الكل</option></select></div>
+          <div><label class="f" for="eStatus">الحالة</label><select id="eStatus"><option value="open">بانتظار التصفية</option><option value="appr">معتمد — لم يُرحَّل</option><option value="done">مُرحّل</option><option value="">الكل</option></select></div>
           <div><label class="f" for="eKind">النوع</label><select id="eKind"><option value="">الكل</option><option value="فاتورة">فواتير</option><option value="مصروفات فرع">مصروفات فروع</option></select></div>
           <div><label class="f" for="eFrom">من تاريخ</label><input id="eFrom" type="date"></div>
           <div><label class="f" for="eTo">إلى تاريخ</label><input id="eTo" type="date"></div>
@@ -694,7 +701,9 @@ const ST_DONE = 'مستعاض';
 const ST_APPR = 'معتمد';
 const ST_NEW = 'جديد';
 const isOpen = (x) => !x.status || x.status === ST_NEW;
-const stLabel = (x) => isOpen(x) ? 'بانتظار الاستعاضة' : (x.status === ST_APPR ? 'معتمد ' + (x.reimbNo || '') : 'مُرحّل ' + (x.reimbNo || ''));
+const stLabel = (x) => isOpen(x) ? 'بانتظار التصفية' : (x.status === ST_APPR ? 'معتمد — لم يُرحَّل' : 'مُرحّل') + (x.reimbNo ? ' ' + x.reimbNo : '');
+const stCls = (x) => isOpen(x) ? 'st-wait' : x.status === ST_APPR ? 'st-appr' : 'st-done';
+const stTag = (x) => `<span class="tag ${stCls(x)}">${esc(stLabel(x))}</span>`;
 
 /* ===================== أدوات ===================== */
 const $ = (id) => document.getElementById(id);
@@ -886,7 +895,7 @@ function renderHome() {
   S.tab = S.tab || 'open';
   const groups = { open: m.expenses.filter(isOpen), done: m.expenses.filter(x => !isOpen(x)), all: m.expenses };
   const sumOf = (a) => fmt(r2(a.reduce((t, x) => t + x.total, 0)));
-  $('hTabs').innerHTML = [['open', 'بانتظار'], ['done', 'معتمدة'], ['all', 'الكل']].map(([k, l]) =>
+  $('hTabs').innerHTML = [['open', 'بانتظار التصفية'], ['done', 'تمت تصفيتها'], ['all', 'الكل']].map(([k, l]) =>
     `<button type="button" data-tab="${k}" class="${S.tab === k ? 'on' : ''}">${l} (${groups[k].length})<small>${sumOf(groups[k])}</small></button>`).join('');
   $('hTabs').querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => { S.tab = b.dataset.tab; renderHome(); }));
   const list = groups[S.tab];
@@ -895,7 +904,7 @@ function renderHome() {
       <span class="t"><b>${esc(x.desc)}</b><span class="sub">${esc(x.vendor)} · <span dir="ltr">${esc(fmtD(x.invDate))}</span></span></span>
       <span style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
         <span class="amt">−${fmt(x.total)}</span>
-        <span class="tag ${isOpen(x) ? '' : 'done'}">${esc(stLabel(x))}</span>
+        ${stTag(x)}
       </span>
     </button>`).join('') : '<div class="card sub" style="text-align:center">لا توجد مصروفات هنا</div>';
   $('hList').querySelectorAll('[data-id]').forEach(b => b.addEventListener('click', () => {
@@ -922,7 +931,7 @@ async function loadTeam() {
   const openAmt = r2(withLogin.reduce((a, e) => a + e.spent, 0)), openCnt = withLogin.reduce((a, e) => a + e.openCount, 0);
   $('tKpis').innerHTML = `
     <div class="kpi"><div class="l">${ops ? 'الموظفين' : 'المشرفين'}</div><div class="v">${withLogin.length}</div><div class="s">لهم دخول على البرنامج</div></div>
-    <div class="kpi"><div class="l">بانتظار الاستعاضة</div><div class="v">${fmt(openAmt)}</div><div class="s">${openCnt} مصروف</div></div>
+    <div class="kpi"><div class="l">بانتظار التصفية</div><div class="v">${fmt(openAmt)}</div><div class="s">${openCnt} مصروف</div></div>
     <div class="kpi"><div class="l">مجموع الأرصدة</div><div class="v">${fmt(r2(withLogin.reduce((a, e) => a + e.balance, 0)))}</div><div class="s">ر.س</div></div>
     <div class="kpi"><div class="l">رصيد بالسالب</div><div class="v" style="color:var(--red)">${withLogin.filter(e => e.balance < 0).length}</div><div class="s">مشرف</div></div>`;
   renderTeamList(); renderTeamExp();
@@ -931,7 +940,7 @@ function renderTeamList() {
   const t = S.team; if (!t) return;
   const q = normAr($('tQ2').value.trim());
   const list = t.employees.filter(e => !q || normAr(e.name).includes(q)).sort((a, b) => (b.hasLogin - a.hasLogin) || (b.spent - a.spent));
-  $('tTeam').innerHTML = '<tr><th>الاسم</th><th>رصيد الدفتر</th><th>بانتظار الاستعاضة</th><th>الرصيد</th></tr>' + (list.map(e => `
+  $('tTeam').innerHTML = '<tr><th>الاسم</th><th>رصيد الدفتر</th><th>بانتظار التصفية</th><th>الرصيد</th></tr>' + (list.map(e => `
     <tr class="tsum ${e.username && $('tUser').value === e.username ? 'on' : ''}" ${e.hasLogin ? `data-u="${esc(e.username)}"` : ''}>
       <td>${esc(supName(e.name))}<div class="sub">${esc(e.job || '')}${e.hasLogin ? '' : ' · <span style="color:var(--warn)">لم يسجل في البرنامج</span>'}</div></td>
       <td>${fmt(e.custody)}</td><td>${fmt(e.spent)}<div class="sub">${e.openCount} مصروف</div></td>
@@ -958,7 +967,7 @@ function renderTeamExp() {
       <td>${r.cat ? '<span class="tag">' + esc(r.cat) + '</span> ' : ''}${esc(r.desc)}<div class="sub">${r.kind === 'مصروفات فرع' ? 'مصروفات فرع' + (r.upTo ? ' حتى ' + esc(fmtD(r.upTo)) : '') : esc(r.vendor) + (r.invNo ? ' · رقم ' + esc(r.invNo) : '')}</div></td>
       <td>${esc(r.branch || '')}</td>
       <td style="font-weight:700;white-space:nowrap">${fmt(r.total)}${r.tax ? '<div class="sub">ضريبة ' + fmt(r.tax) + '</div>' : ''}</td>
-      <td style="white-space:nowrap">${esc(stLabel(r))}</td>
+      <td style="white-space:nowrap">${stTag(r)}</td>
       <td>${r.hasImage ? `<button type="button" class="mini" data-img="${esc(r.id)}">عرض</button>` : '<span class="sub">—</span>'}</td></tr>`).join('');
   $('tTbl').querySelectorAll('[data-img]').forEach(b => b.addEventListener('click', () => showImg(b, b.dataset.img)));
 }
@@ -1008,12 +1017,27 @@ $('kindTabs').querySelectorAll('[data-kind]').forEach(b => b.addEventListener('c
 
 // فروع المشرف فقط (من الإعدادات) — أو كل الفروع إن لم يحدد
 function fillBranches(cur, override) {
-  const mine = (S.me && S.me.user.myBranches) || [];
-  let list = override || (mine.length ? mine : (S.me ? S.me.branches : []));
-  if (cur && list.indexOf(cur) === -1) list = [cur].concat(list);
-  $('fBranch').innerHTML = '<option value="">— اختر الفرع —</option>' + list.map(b => `<option>${esc(b)}</option>`).join('');
-  $('fBranch').value = cur || (list.length === 1 ? list[0] : '');
-  note($('brHint'), mine.length || override ? '' : 'warn', mine.length || override ? '' : 'نصيحة: اختار فروعك من الإعدادات عشان تظهر لك هي بس');
+  const mine = uniqA(((S.me && S.me.user.assignedBranches) || []).concat((S.me && S.me.user.myBranches) || []));
+  const all = override || (S.me ? S.me.branches : []) || [];
+  const last = store.get('ohda_lastBr') || '';
+  S.brAll = { mine: override ? [] : mine, rest: all.filter(b => mine.indexOf(b) === -1), last: last, cur: cur };
+  $('fBrQ').value = '';
+  renderBrOpts(cur || (mine.length === 1 ? mine[0] : '') || (!override && last && all.concat(mine).includes(last) ? last : ''));
+  note($('brHint'), '', '');
+}
+function renderBrOpts(sel) {
+  const a = S.brAll || { mine: [], rest: [] };
+  const q = normAr($('fBrQ').value.trim());
+  const f = (l) => l.filter(b => !q || normAr(b).includes(q));
+  let mine = f(a.mine), rest = f(a.rest);
+  const top = a.last && (mine.includes(a.last) || rest.includes(a.last)) && !q ? [a.last] : [];
+  mine = mine.filter(b => !top.includes(b)); rest = rest.filter(b => !top.includes(b));
+  const extra = a.cur && !a.mine.includes(a.cur) && !a.rest.includes(a.cur) ? [a.cur] : [];
+  const grp = (l, label) => l.length ? `<optgroup label="${label}">${l.map(b => `<option>${esc(b)}</option>`).join('')}</optgroup>` : '';
+  $('fBranch').innerHTML = '<option value="">— اختر الفرع —</option>' + grp(extra, 'الحالي') + grp(top, 'آخر فرع استخدمته') + grp(mine, 'فروعي') + grp(rest, mine.length || top.length ? 'باقي الفروع' : 'الفروع');
+  const v = sel !== undefined ? sel : $('fBranch').dataset.v;
+  if (v && [...$('fBranch').options].some(o => o.value === v)) $('fBranch').value = v;
+  else if (q) { const first = [...$('fBranch').options].find(o => o.value); if (first) $('fBranch').value = first.value; }
 }
 // مطابقة اسم الفرع المقروء من الصورة مع فروع المشرف
 function matchBranch(name) {
@@ -1195,7 +1219,18 @@ $('expForm').addEventListener('submit', async (ev) => {
   if (S.kind === 'br') {
     Object.assign(expense, { vendor: 'مصروفات الفرع', vat: '', invNo: '', tax: 0, upTo: $('fDate').value, fromDate: '' });
     if (!expense.branch.trim()) { note($('formErr'), 'err', 'اختر الفرع'); return; }
+    if (!S.image && !(S.editing && S.editing.image)) { note($('formErr'), 'err', 'مصروفات الفرع لازم يكون معاها مرفق — صوّر الكشف أو الإيصالات'); return; }
   }
+  const badNum = (v) => String(v || '').trim() && !/^[\d٠-٩.,٫\s]+$/.test(String(v).trim());
+  if (badNum($('fNet').value) || (S.kind !== 'br' && badNum($('fTax').value))) { note($('formErr'), 'err', 'المبلغ لازم يكون أرقام بس'); return; }
+  if (expense.vat && !/^3\d{13}3$/.test(expense.vat)) { note($('formErr'), 'err', 'الرقم الضريبي لازم يكون 15 رقم ويبدأ وينتهي بـ 3'); return; }
+  if (!isAdmin()) {
+    const total = r2(expense.net + (S.kind === 'br' ? 0 : expense.tax));
+    const lines = [`المبلغ: ${fmt(total)} ر.س${S.kind !== 'br' && !expense.tax && expense.vat ? ' (بدون ضريبة!)' : ''}`, `الفرع: ${expense.branch || '—'}`, `البند: ${expense.cat || '—'}`, `البيان: ${expense.desc.trim() || '—'}`];
+    if (S.kind !== 'br') lines.splice(1, 0, `المورد: ${expense.vendor || '—'}`);
+    if (!confirm('راجع قبل الحفظ:\n\n' + lines.join('\n') + '\n\nتقدر تعدّل أو تحذف المصروف بعد الحفظ طالما ما اتصفّاش.')) return;
+  }
+  if (expense.branch) store.set('ohda_lastBr', expense.branch);
   busy(b, true, 'جارٍ الحفظ');
   note($('formErr'), '', '');
   try {
@@ -1209,6 +1244,9 @@ $('expForm').addEventListener('submit', async (ev) => {
   busy(b, false);
 });
 
+$('fBrQ').addEventListener('input', () => renderBrOpts());
+$('fBranch').addEventListener('change', () => { $('fBranch').dataset.v = $('fBranch').value; });
+
 /* ---------- الأدمن ---------- */
 async function loadAdmin() {
   const d = await api('adminData');
@@ -1218,7 +1256,7 @@ async function loadAdmin() {
   const balSum = r2(withLogin.reduce((a, e) => a + e.balance, 0));
   const lastR = d.reimbursements[0];
   $('aKpis').innerHTML = `
-    <div class="kpi"><div class="l">بانتظار الاستعاضة</div><div class="v">${fmt(openAmt)}</div><div class="s">${openCnt} مصروف</div></div>
+    <div class="kpi"><div class="l">بانتظار التصفية</div><div class="v">${fmt(openAmt)}</div><div class="s">${openCnt} مصروف</div></div>
     <div class="kpi"><div class="l">أرصدة المشرفين (لهم دخول)</div><div class="v">${fmt(balSum)}</div><div class="s">${withLogin.length} مشرف</div></div>
     <div class="kpi"><div class="l">رصيد بالسالب</div><div class="v" style="color:var(--red)">${withLogin.filter(e => e.balance < 0).length}</div><div class="s">مشرف</div></div>
     <div class="kpi"><div class="l">آخر استعاضة</div><div class="v" style="font-size:16px">${lastR ? esc(lastR.no) : '—'}</div><div class="s">${lastR ? esc(lastR.date) + ' · ' + fmt(lastR.total) : 'لا يوجد'}</div></div>`;
@@ -1291,7 +1329,7 @@ function renderSupTbl() {
       <td>${e.job === 'مدير عمليات' ? '<span class="sub">—</span>' : `<select class="acc" data-id="${esc(e.id)}" data-k="mgr" aria-label="المدير المباشر لـ ${esc(supName(e.name))}">${mgrOpts(e)}</select>`}</td>
       <td><input class="acc" type="number" min="0" step="100" data-id="${esc(e.id)}" data-k="cap" value="${e.capOwn === '' || e.capOwn == null ? '' : e.capOwn}" placeholder="${defCap(e.job) ? 'افتراضي ' + defCap(e.job) : 'بدون'}" aria-label="سقف عهدة ${esc(supName(e.name))}"></td>
       <td><input class="acc" type="email" dir="ltr" data-id="${esc(e.id)}" data-k="email" value="${esc(e.email || '')}" placeholder="—" aria-label="إيميل ${esc(supName(e.name))}" style="min-width:170px"></td>` : '<td colspan="5"></td>'}</tr>`;
-  let html = '<tr><th>الاسم</th><th>الدخول</th><th>رصيد الدفتر</th><th>بانتظار الاستعاضة</th><th>الرصيد</th><th>الوظيفة</th><th>القسم</th><th>المدير المباشر</th><th>سقف العهدة</th><th>البريد</th></tr>';
+  let html = '<tr><th>الاسم</th><th>الدخول</th><th>رصيد الدفتر</th><th>بانتظار التصفية</th><th>الرصيد</th><th>الوظيفة</th><th>القسم</th><th>المدير المباشر</th><th>سقف العهدة</th><th>البريد</th></tr>';
   JOB_GROUPS.forEach(([k, l]) => {
     const g = list.filter(e => jobKey(e.job) === k).sort((a, b) => (b.hasLogin - a.hasLogin) || (a.balance - b.balance));
     if (!g.length) return;
@@ -1328,8 +1366,9 @@ $('toReg').addEventListener('click', async () => {
   catch (e) { note($('regErr'), 'err', e.message); }
 });
 function renderRegList() {
-  const q = $('rQ').value.trim();
-  const list = (S.regList || []).filter(x => !q || x.name.includes(q));
+  const q = normAr($('rQ').value.trim());
+  if (q.length < 3) { $('rId').innerHTML = '<option disabled>اكتب 3 حروف على الأقل من اسمك</option>'; return; }
+  const list = (S.regList || []).filter(x => normAr(x.name).includes(q)).slice(0, 15);
   $('rId').innerHTML = list.map(x => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join('') || '<option disabled>لا توجد أسماء مطابقة — راجع الإدارة</option>';
 }
 $('rQ').addEventListener('input', renderRegList);
@@ -1388,11 +1427,16 @@ $('topBtn').addEventListener('click', () => {
     <span style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">${topTag(t.status)}<span class="sub" dir="ltr">${esc((t.date || '').slice(0, 10))}</span></span></div>`).join('') : '<div class="card sub" style="text-align:center">لا توجد طلبات</div>';
   show('topup');
 });
+$('tUrg').querySelectorAll('[data-u]').forEach(b => b.addEventListener('click', () => $('tUrg').querySelectorAll('[data-u]').forEach(x => x.classList.toggle('on', x === b))));
 $('topForm').addEventListener('submit', async (ev) => {
   ev.preventDefault();
   const b = ev.submitter || $('topForm').querySelector('button'); busy(b, true, 'جارٍ الإرسال'); note($('topErr'), '', '');
   try {
-    const r = await api('requestTopup', { amount: num($('tAmt').value), reason: $('tReason').value });
+    let image = ''; const tf = $('tFile').files[0];
+    if (tf) { const pages = isPdf(tf) ? await pdfToImages(tf, 1) : [await fileToImage(tf)]; image = drawScaled(pages[0], 1400).toDataURL('image/jpeg', 0.72); }
+    const urgency = ($('tUrg').querySelector('.on') || {}).dataset ? $('tUrg').querySelector('.on').dataset.u : 'عادي';
+    const r = await api('requestTopup', { amount: num($('tAmt').value), reason: $('tReason').value, urgency, image });
+    $('tFile').value = '';
     S.me = await api('me'); $('tAmt').value = ''; $('tReason').value = '';
     renderHome(); show('home'); toast(`تم إرسال الطلب ${r.no} ✓`);
   } catch (e) { note($('topErr'), 'err', e.message); }
@@ -1419,16 +1463,17 @@ function renderMonth() {
       <div class="grid">
         <div>عدد المصروفات<b>${list.length}</b></div>
         <div>منها فواتير / مصروفات فروع<b>${list.filter(x => x.kind !== 'مصروفات فرع').length} / ${list.filter(x => x.kind === 'مصروفات فرع').length}</b></div>
-        <div>بانتظار الاستعاضة<b>${fmt(sum(list.filter(isOpen)))}</b></div>
+        <div>بانتظار التصفية<b>${fmt(sum(list.filter(isOpen)))}</b></div>
         <div>معتمد / مُرحّل<b>${fmt(sum(list.filter(x => !isOpen(x))))}</b></div>
       </div>
     </div>
     <div class="card"><h2>حسب الفرع</h2>
       ${brs.length ? brs.map(k => { const v = sum(byBr[k]); const pct = total ? Math.round(v / total * 100) : 0; return `
-        <div style="margin:10px 0">
-          <div style="display:flex;justify-content:space-between;font-size:14px"><span>${esc(k)} <span class="sub">(${byBr[k].length})</span></span><b>${fmt(v)}</b></div>
-          <div style="height:8px;background:#EEF1EF;border-radius:99px;margin-top:6px"><div style="height:8px;width:${pct}%;background:var(--g);border-radius:99px"></div></div>
-        </div>`; }).join('') : '<div class="sub">لا توجد مصروفات في هذا الشهر</div>'}
+        <details style="margin:10px 0"><summary style="list-style:none;cursor:pointer">
+          <div style="display:flex;justify-content:space-between;font-size:14px"><span>${esc(k)} <span class="sub">(${byBr[k].length}) ▾</span></span><b>${fmt(v)}</b></div>
+          <div style="height:8px;background:var(--soft);border-radius:99px;margin-top:6px"><div style="height:8px;width:${pct}%;background:var(--g);border-radius:99px"></div></div></summary>
+          ${byBr[k].map(x => `<div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;padding:8px 0;border-bottom:1px solid var(--soft)"><span>${esc(x.desc)}<span class="sub" style="display:block"><span dir="ltr">${esc(fmtD(x.invDate))}</span> · ${esc(x.vendor || '')}</span></span><span style="text-align:left"><b>${fmt(x.total)}</b><br>${stTag(x)}</span></div>`).join('')}
+        </details>`; }).join('') : '<div class="sub">لا توجد مصروفات في هذا الشهر</div>'}
     </div>`;
 }
 
@@ -1520,10 +1565,13 @@ $('addBrBtn').addEventListener('click', async () => {
 function renderTopAdmin() {
   const all = (S.adm && S.adm.topups) || []; const pend = all.filter(t => t.status === 'جديد');
   $('topCard').classList.toggle('hidden', !all.length);
-  $('topTbl').innerHTML = '<tr><th>الطلب</th><th>المشرف</th><th>المبلغ</th><th>السبب</th><th>رصيده وقت الطلب</th><th>الحالة</th><th></th></tr>' + all.slice(0, 20).map(t => `<tr>
-    <td>${esc(t.no)}<div class="sub" dir="ltr">${esc((t.date || '').slice(0, 10))}</div></td><td>${esc(supName(t.name))}</td><td style="font-weight:700">${fmt(t.amount)}</td>
-    <td>${esc(t.reason)}${t.note ? '<div class="sub">' + esc(t.note) + '</div>' : ''}</td><td>${fmt(t.balance)}</td><td>${topTag(t.status)}</td>
+  $('topTbl').innerHTML = '<tr><th>الطلب</th><th>المشرف</th><th>المبلغ</th><th>السبب</th><th>رصيده وقت الطلب</th><th>الحالة</th><th></th></tr>' + all.slice().sort((a, b) => ((b.status === 'جديد' && b.urgency === 'عاجل') - (a.status === 'جديد' && a.urgency === 'عاجل'))).slice(0, 20).map(t => `<tr>
+    <td>${esc(t.no)}${t.urgency === 'عاجل' ? ' <span class="tag st-no">عاجل</span>' : ''}<div class="sub" dir="ltr">${esc((t.date || '').slice(0, 10))}</div></td><td>${esc(supName(t.name))}</td><td style="font-weight:700">${fmt(t.amount)}</td>
+    <td>${esc(t.reason)}${t.note ? '<div class="sub">' + esc(t.note) + '</div>' : ''}${t.attach ? ` <button type="button" class="mini" data-tatt="${esc(t.no)}">المرفق</button>` : ''}</td><td>${fmt(t.balance)}</td><td>${topTag(t.status)}</td>
     <td style="white-space:nowrap">${t.status === 'جديد' ? `<button type="button" class="mini" data-tok="${esc(t.no)}" style="background:var(--g);color:#fff;border-color:var(--g)">تم الصرف</button> <button type="button" class="mini" data-tno="${esc(t.no)}">رفض</button>` : ''}</td></tr>`).join('');
+  $('topTbl').querySelectorAll('[data-tatt]').forEach(b => b.addEventListener('click', async () => {
+    busy(b, true, '…'); try { const r = await api('topAttach', { no: b.dataset.tatt }); $('imgEl').src = r.url; $('imgBox').classList.remove('hidden'); } catch (e) { toast(e.message); } busy(b, false);
+  }));
   $('topTbl').querySelectorAll('[data-tok],[data-tno]').forEach(b => b.addEventListener('click', async () => {
     const ok = !!b.dataset.tok; const no = b.dataset.tok || b.dataset.tno;
     const note = ok ? '' : (prompt('سبب الرفض (اختياري):') || '');
@@ -1586,7 +1634,7 @@ function renderExp() {
       <td>${r.cat ? '<span class="tag">' + esc(r.cat) + '</span> ' : ''}${esc(r.desc)}<div class="sub">${r.kind === 'مصروفات فرع' ? 'مصروفات فرع' + (r.upTo ? ' حتى ' + esc(fmtD(r.upTo)) : '') : esc(r.vendor) + (r.invNo ? ' · رقم ' + esc(r.invNo) : '')}</div></td>
       <td>${esc(r.branch || '')}</td>
       <td style="font-weight:700;white-space:nowrap">${fmt(r.total)}${r.tax ? '<div class="sub">ضريبة ' + fmt(r.tax) + '</div>' : ''}</td>
-      <td style="white-space:nowrap">${esc(stLabel(r))}</td>
+      <td style="white-space:nowrap">${stTag(r)}</td>
       <td>${r.image && /^https?:/.test(r.image) ? `<a class="mini" href="${esc(r.image)}" target="_blank" rel="noopener">عرض</a>` : '<span class="sub">—</span>'}</td>
       <td style="white-space:nowrap">${r.status === ST_DONE ? '' : `<button type="button" class="mini" data-edit="${esc(r.id)}">تصحيح</button>`}${isOpen(r) ? ` <button type="button" class="mini" data-del="${esc(r.id)}" style="color:var(--red)">حذف</button>` : ''}</td></tr>`).join('');
   $('eTbl').querySelectorAll('[data-edit]').forEach(b => b.addEventListener('click', () => openForm(S.allExp.find(x => x.id === b.dataset.edit))));
