@@ -17,6 +17,20 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans A
 #imgBox{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:60;display:flex;align-items:center;justify-content:center;padding:16px}
 #imgBox img{max-width:100%;max-height:100%;border-radius:8px;background:#fff}
 #imgBox button{position:absolute;top:14px;left:14px}
+.jobcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:0 0 12px}
+.jobcard{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px;border-radius:12px;border:1px solid var(--line2);background:var(--card);font:inherit;color:var(--ink);cursor:pointer;text-align:right;border-top:3px solid var(--jc,var(--g))}
+.jobcard b{font-size:20px;line-height:28px;font-variant-numeric:tabular-nums}
+.jobcard.on{background:var(--gl);border-color:var(--g)}
+.jtag{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;color:#fff;background:var(--jc,var(--g))}
+.tbl select,.tbl input{height:36px;font-size:13px;border-radius:8px;padding:0 8px;min-width:110px}
+.tbl input[type=number]{min-width:90px;width:100px}
+.rq{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:8px;background:var(--card)}
+.rq .h{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.rq .st{font-size:11px;font-weight:700;padding:2px 10px;border-radius:999px;white-space:nowrap}
+.st-wait{background:var(--warnbg);color:var(--warn)}.st-ok{background:var(--gl);color:var(--g2)}.st-no{background:var(--redbg);color:var(--red)}
+.wa{background:#25D366!important;color:#fff!important;border:0!important}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;font-size:14px}
+.switch input{width:44px;height:24px;accent-color:var(--g)}
 .tsum{cursor:pointer}.tsum.on td{background:var(--gl)}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:12px}
 .kpi{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 16px;box-shadow:var(--sh)}
@@ -212,6 +226,7 @@ body.dark .balance{background:#0B5A41}
   <button class="dr-item" data-go="list"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg><span>مصروفاتي</span></button>
   <button class="dr-item" data-go="topup"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg><span>طلب تعزيز عهدة</span></button>
   <button class="dr-item" data-go="month"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>ملخص الشهر</span></button>
+  <button class="dr-item" data-go="req"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span>طلبات الاعتماد</span></button>
   <button class="dr-item" data-go="settings"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>الإعدادات</span></button>
   <div style="flex:1"></div>
   <button class="dr-item" data-go="logout" style="color:var(--red)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg><span>تسجيل الخروج</span></button>
@@ -232,14 +247,14 @@ body.dark .balance{background:#0B5A41}
       <div id="loginErr"></div>
       <button class="btn" style="margin-top:16px" type="submit">دخول</button>
     </form>
-    <button class="btn sec" type="button" id="toReg">مشرف جديد؟ سجّل حسابك</button>
+    <button class="btn sec" type="button" id="toReg">إنشاء حساب</button>
   </section>
 
-  <!-- ============ تسجيل مشرف جديد ============ -->
+  <!-- ============ إنشاء حساب ============ -->
   <section id="v-reg" class="hidden">
     <header class="bar">
       <button class="iconbtn" id="regBack" aria-label="رجوع"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-      <h1>تسجيل مشرف جديد</h1>
+      <h1>إنشاء حساب</h1>
       <span style="width:44px"></span>
     </header>
     <form id="regForm" class="card">
@@ -256,7 +271,7 @@ body.dark .balance{background:#0B5A41}
       <label class="f" for="rPhone">رقم الجوال</label>
       <input id="rPhone" type="tel" dir="ltr" inputmode="tel" placeholder="05xxxxxxxx" required>
       <div id="regErr"></div>
-      <button class="btn" style="margin-top:16px" type="submit">إرسال طلب التسجيل</button>
+      <button class="btn" style="margin-top:16px" type="submit">إنشاء الحساب</button>
       <p class="sub" style="text-align:center;margin:10px 0 0">طلبك يوصل للإدارة، وبعد الموافقة تقدر تدخل باسم المستخدم والرمز</p>
     </form>
     <div id="regDone" class="card hidden" style="text-align:center">
@@ -291,6 +306,7 @@ body.dark .balance{background:#0B5A41}
     </button>
     <div id="lowBal"></div>
     <button class="btn hidden" type="button" id="teamBtn" style="margin-bottom:10px">مصروفات فريقي</button>
+    <button class="btn sec" type="button" id="reqBtn" style="margin-bottom:10px">طلبات الاعتماد</button>
     <div class="two" style="margin-bottom:18px">
       <button class="btn sec" type="button" id="topBtn">طلب تعزيز عهدة</button>
       <button class="btn sec" type="button" id="monBtn">ملخص الشهر</button>
@@ -347,6 +363,23 @@ body.dark .balance{background:#0B5A41}
     </div>
   </section>
 
+  <!-- ============ طلبات الاعتماد ============ -->
+  <section id="v-req" class="hidden">
+    <header class="bar"><button class="iconbtn" data-home aria-label="رجوع"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button><h1>طلبات الاعتماد</h1><span style="width:44px"></span></header>
+    <div id="rqDecideCard" class="card hidden"><h2>بانتظار قرارك</h2><div id="rqWait"></div></div>
+    <form id="rqForm" class="card">
+      <h2>طلب اعتماد جديد</h2>
+      <p class="sub" style="margin:-4px 0 4px">الطلب يوصل لمدير العمليات للاعتماد أو الرفض</p>
+      <label class="f" for="rqSubj">موضوع الطلب</label><input id="rqSubj" maxlength="120" required placeholder="مثال: شراء ثلاجة لفرع جزلا">
+      <label class="f" for="rqDet">التفاصيل</label><textarea id="rqDet" required placeholder="اشرح الطلب وسببه…"></textarea>
+      <label class="f" for="rqAmt">المبلغ التقريبي (اختياري)</label><input id="rqAmt" inputmode="decimal" dir="ltr">
+      <label class="f" for="rqFile">مرفق — صورة أو عرض سعر (اختياري)</label><input id="rqFile" type="file" accept="image/*,application/pdf" style="padding:10px;height:auto">
+      <div id="rqErr"></div>
+      <button class="btn" style="margin-top:16px" type="submit">إرسال الطلب</button>
+    </form>
+    <div class="card"><h2 id="rqListH">طلباتي</h2><div class="tabs" id="rqTabs" style="margin-bottom:10px"></div><div id="rqList"></div></div>
+  </section>
+
   <!-- ============ الإعدادات ============ -->
   <section id="v-settings" class="hidden">
     <header class="bar"><button class="iconbtn" data-home aria-label="رجوع"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button><h1>الإعدادات</h1><span style="width:44px"></span></header>
@@ -366,6 +399,13 @@ body.dark .balance{background:#0B5A41}
       <div id="brErr"></div>
       <button class="btn sec" style="margin-top:12px" type="button" id="brSave">حفظ فروعي</button>
     </div>
+    <form id="emailForm" class="card">
+      <h2>البريد الإلكتروني</h2>
+      <p class="sub" style="margin:-4px 0 8px">لاستلام إشعارات طلبات الاعتماد</p>
+      <input id="sEmail" type="email" dir="ltr" inputmode="email" placeholder="name@arabicastar.com" aria-label="البريد الإلكتروني">
+      <div id="emailErr"></div>
+      <button class="btn sec" style="margin-top:12px" type="submit">حفظ البريد</button>
+    </form>
     <form id="phoneForm" class="card">
       <h2>رقم الجوال</h2>
       <input id="sPhone" type="tel" dir="ltr" inputmode="tel" placeholder="05xxxxxxxx" required aria-label="رقم الجوال">
@@ -447,6 +487,8 @@ body.dark .balance{background:#0B5A41}
       <div style="display:flex;justify-content:space-between;align-items:center;background:var(--gl);border-radius:12px;padding:12px;margin-top:6px">
         <span style="color:var(--g2);font-size:14px" id="lblTotal">الإجمالي بعد الضريبة</span><b id="fTotal" style="color:var(--g2);font-size:18px">0.00</b>
       </div>
+      <label class="f" for="fCat">البند</label>
+      <select id="fCat"></select>
       <label class="f" for="fDesc" style="color:var(--ink);font-weight:700;font-size:15px">البيان <span style="color:var(--red)">*</span></label>
       <textarea id="fDesc" placeholder="اكتب بيان المصروف…" required></textarea>
       <div id="suggWrap" class="hidden"><div class="sub" style="margin-top:8px">اقتراحات من أصناف الفاتورة وبيانات سابقة — اضغط لاستخدامها</div><div class="chips" id="sugg"></div></div>
@@ -484,6 +526,8 @@ body.dark .balance{background:#0B5A41}
       <button type="button" data-at="settle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><span>تصفية عهدة</span></button>
       <button type="button" data-at="sup" id="supTabBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/></svg><span>الموظفين</span></button>
       <button type="button" data-at="br"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"/></svg><span>ربط الفروع</span></button>
+      <button type="button" data-at="req"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span>طلبات الاعتماد</span></button>
+      <button type="button" data-at="cfg"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>الإعدادات</span></button>
       <button type="button" data-at="reimb"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h18M3 12h18M3 17h12"/></svg><span>الاستعاضات</span></button>
     </nav>
     <div class="amain">
@@ -532,7 +576,7 @@ body.dark .balance{background:#0B5A41}
       </div>
       <div class="card">
         <h2>أرصدة الموظفين حسب الوظيفة</h2>
-        <div class="chips" id="jobChips" style="margin:0 0 10px"></div>
+        <div class="jobcards" id="jobChips"></div>
         <input id="supQ" placeholder="بحث بالاسم…" style="margin-bottom:10px">
         <div class="scroll"><table class="tbl" id="empTbl"></table></div>
       </div>
@@ -564,6 +608,54 @@ body.dark .balance{background:#0B5A41}
           <div style="display:flex;gap:8px;margin-top:8px"><input id="newBr" placeholder="اسم فرع جديد" aria-label="اسم فرع جديد"><button class="btn" type="button" id="addBrBtn" style="width:auto;padding:0 18px;min-height:48px">إضافة</button></div>
           <div id="brAdmErr"></div>
         </details>
+      </div>
+    </div>
+
+    <div class="apane hidden" data-pane="req">
+      <div class="card">
+        <h2>طلبات الاعتماد</h2>
+        <p class="sub" style="margin:-4px 0 10px">الاعتماد والرفض من مدير العمليات — هنا للمتابعة</p>
+        <div class="tabs" id="arqTabs"></div>
+        <div id="arqList"></div>
+      </div>
+    </div>
+
+    <div class="apane hidden" data-pane="cfg">
+      <div class="card">
+        <h2>الأقسام</h2>
+        <p class="sub" style="margin:-4px 0 10px">أقسام الإدارة — تعديل الاسم ينقل الموظفين المربوطين بالقسم تلقائياً</p>
+        <div id="cfgDepts"></div>
+        <div style="display:flex;gap:8px;margin-top:10px"><input id="cfgNewDept" placeholder="اسم إدارة جديدة" aria-label="اسم إدارة جديدة"><button class="btn" type="button" id="cfgAddDept" style="width:auto;padding:0 18px;min-height:48px">إضافة</button></div>
+        <div id="cfgDeptErr"></div>
+      </div>
+      <div class="card">
+        <h2>بنود المصروفات</h2>
+        <p class="sub" style="margin:-4px 0 10px">البنود اللي تظهر للموظف حسب وظيفته وهو بيسجل الفاتورة</p>
+        <label class="f" for="cfgCatJob" style="margin-top:0">الوظيفة</label><select id="cfgCatJob"></select>
+        <div class="chips" id="cfgCats"></div>
+        <div style="display:flex;gap:8px;margin-top:10px"><input id="cfgNewCat" placeholder="بند جديد" aria-label="بند جديد"><button class="btn" type="button" id="cfgAddCat" style="width:auto;padding:0 18px;min-height:48px">إضافة</button></div>
+      </div>
+      <div class="card">
+        <h2>سقف العهدة الافتراضي</h2>
+        <p class="sub" style="margin:-4px 0 10px">يُطبَّق على أي موظف ما اتحددش له سقف خاص في تبويب الموظفين. اتركه فاضي = بدون سقف</p>
+        <div class="filters" id="cfgCaps"></div>
+        <button class="btn sec" type="button" id="cfgSaveCaps" style="margin-top:12px">حفظ السقف</button>
+      </div>
+      <div class="card">
+        <h2>عام</h2>
+        <label class="switch"><span>القراءة التلقائية للفواتير</span><input type="checkbox" id="cfgRead"></label>
+        <div class="switch"><span>المظهر</span><div class="tabs" id="cfgMode" style="margin:0;flex:0 0 220px"><button type="button" data-mode="light">فاتح</button><button type="button" data-mode="dark">داكن</button><button type="button" data-mode="auto">تلقائي</button></div></div>
+      </div>
+      <div class="card">
+        <h2>الوظائف والصلاحيات</h2>
+        <div class="scroll"><table class="tbl"><tr><th>الوظيفة</th><th>يشوف إيه</th><th>المدير المباشر المعتاد</th></tr>
+          <tr><td><span class="jtag" style="--jc:#5B4BB7">مدير عمليات</span></td><td>كل المصروفات + اعتماد الطلبات</td><td>—</td></tr>
+          <tr><td><span class="jtag" style="--jc:#B8202A">مدير منطقة</span></td><td>مصروفاته + فريقه</td><td>مدير العمليات</td></tr>
+          <tr><td><span class="jtag" style="--jc:#0B6E4F">مشرف</span></td><td>مصروفاته</td><td>مدير المنطقة</td></tr>
+          <tr><td><span class="jtag" style="--jc:#C26A00">فني</span></td><td>مصروفاته</td><td>مدير العمليات</td></tr>
+          <tr><td><span class="jtag" style="--jc:#1F6FB2">سائق</span></td><td>مصروفاته</td><td>مدير الحركة (المشتريات)</td></tr>
+          <tr><td><span class="jtag" style="--jc:#4A5868">موظف إدارة</span></td><td>مصروفاته — ومن له موظفين تحته يشوف مصروفاتهم</td><td>مدير القسم</td></tr>
+        </table></div>
       </div>
     </div>
 
@@ -740,7 +832,7 @@ async function readNow() {
 /* ===================== الشاشات ===================== */
 const isAdmin = () => S.me && S.me.user && S.me.user.role === 'أدمن';
 function show(v) {
-  ['login', 'reg', 'home', 'form', 'admin', 'topup', 'month', 'settings', 'team'].forEach(x => $('v-' + x).classList.toggle('hidden', x !== v));
+  ['login', 'reg', 'home', 'form', 'admin', 'topup', 'month', 'settings', 'team', 'req'].forEach(x => $('v-' + x).classList.toggle('hidden', x !== v));
   document.querySelector('.app').classList.toggle('wide', v === 'admin' || v === 'team');
   $('credit').classList.toggle('hidden', v === 'admin' || v === 'team');
   window.scrollTo(0, 0);
@@ -788,7 +880,9 @@ function renderHome() {
   renderLowBal();
   const lv = m.user.level;
   $('teamBtn').classList.toggle('hidden', lv !== 'ops' && lv !== 'area');
-  $('teamBtn').textContent = lv === 'ops' ? 'كل مصروفات المشرفين' : 'مصروفات المشرفين التابعين لي';
+  $('teamBtn').textContent = lv === 'ops' ? 'كل مصروفات الموظفين' : 'مصروفات الموظفين التابعين لي';
+  $('reqBtn').textContent = m.reqCount ? `طلبات الاعتماد (${m.reqCount} بانتظار قرارك)` : 'طلبات الاعتماد';
+  $('reqBtn').style.borderColor = m.reqCount ? 'var(--brand)' : '';
   S.tab = S.tab || 'open';
   const groups = { open: m.expenses.filter(isOpen), done: m.expenses.filter(x => !isOpen(x)), all: m.expenses };
   const sumOf = (a) => fmt(r2(a.reduce((t, x) => t + x.total, 0)));
@@ -819,8 +913,8 @@ async function loadTeam() {
   S.team = await api('teamData');
   const t = S.team, ops = t.level === 'ops';
   $('tTitle').textContent = ops ? 'كل المصروفات' : 'مصروفات فريقي';
-  $('tSub').textContent = ops ? 'مدير العمليات' : 'مدير المنطقة';
-  $('tTeamH').textContent = ops ? 'كل الموظفين' : 'المشرفين التابعين لك';
+  $('tSub').textContent = ops ? 'مدير العمليات' : (S.me && S.me.user.job) || 'المدير المباشر';
+  $('tTeamH').textContent = ops ? 'كل الموظفين' : 'الموظفين التابعين لك';
   const cur = $('tUser').value;
   const withLogin = t.employees.filter(e => e.hasLogin);
   $('tUser').innerHTML = jobOptions(withLogin, true).replace('كل الموظفين', ops ? 'كل الموظفين' : 'كل المشرفين');
@@ -861,7 +955,7 @@ function renderTeamExp() {
     rows.map(r => `<tr class="${r.status === ST_DONE ? 'done' : ''}">
       <td dir="ltr" style="white-space:nowrap">${esc(fmtD(r.invDate))}</td>
       <td>${esc(supName(r.empName))}</td>
-      <td>${esc(r.desc)}<div class="sub">${r.kind === 'مصروفات فرع' ? 'مصروفات فرع' + (r.upTo ? ' حتى ' + esc(fmtD(r.upTo)) : '') : esc(r.vendor) + (r.invNo ? ' · رقم ' + esc(r.invNo) : '')}</div></td>
+      <td>${r.cat ? '<span class="tag">' + esc(r.cat) + '</span> ' : ''}${esc(r.desc)}<div class="sub">${r.kind === 'مصروفات فرع' ? 'مصروفات فرع' + (r.upTo ? ' حتى ' + esc(fmtD(r.upTo)) : '') : esc(r.vendor) + (r.invNo ? ' · رقم ' + esc(r.invNo) : '')}</div></td>
       <td>${esc(r.branch || '')}</td>
       <td style="font-weight:700;white-space:nowrap">${fmt(r.total)}${r.tax ? '<div class="sub">ضريبة ' + fmt(r.tax) + '</div>' : ''}</td>
       <td style="white-space:nowrap">${esc(stLabel(r))}</td>
@@ -960,6 +1054,7 @@ function openForm(x) {
   $('fNet').value = x ? Number(x.net).toFixed(2) : '';
   $('fTax').value = x ? Number(x.tax).toFixed(2) : '';
   $('fDesc').value = x ? x.desc : '';
+  fillCats(x ? x.cat : '', x && isAdmin() ? jobOfUser(x.username) : null);
   fillBranches(x ? x.branch : '');
   $('fUpTo').value = x ? (x.upTo || '') : '';
   $('fFrom').value = x ? (x.fromDate || '') : '';
@@ -1094,7 +1189,7 @@ $('expForm').addEventListener('submit', async (ev) => {
   const b = $('saveBtn');
   const expense = {
     invDate: $('fDate').value, vendor: $('fVendor').value, vat: $('fVat').value.trim(), invNo: $('fInvNo').value.trim(),
-    net: num($('fNet').value), tax: num($('fTax').value), desc: $('fDesc').value, branch: $('fBranch').value, source: S.source,
+    net: num($('fNet').value), tax: num($('fTax').value), desc: $('fDesc').value, branch: $('fBranch').value, source: S.source, cat: $('fCat').value,
     kind: S.kind === 'br' ? 'مصروفات فرع' : 'فاتورة', upTo: $('fUpTo').value
   };
   if (S.kind === 'br') {
@@ -1145,6 +1240,8 @@ async function loadAdmin() {
   renderPending();
   renderTopAdmin();
   renderLink();
+  renderAdminReq();
+  renderCfg();
   $('lastSync').textContent = d.ledger ? 'الأرصدة تُقرأ مباشرة من دفتر العهد على جوجل' + (d.lastSync ? ' · آخر استيراد: ' + d.lastSync : '') : (d.lastSync ? 'آخر تحديث: ' + d.lastSync : 'لم يتم التحديث من الإكسل بعد');
   $('reimbTbl').innerHTML = '<tr><th>الرقم</th><th>التاريخ</th><th>المشرف</th><th>العدد</th><th>الإجمالي</th><th>الترحيل</th></tr>' +
     (d.reimbursements.map(r => `<tr><td>${esc(r.no)}</td><td dir="ltr">${esc(fmtD(r.date))}</td><td>${esc(supName(r.supervisor))}</td><td>${r.count}</td><td>${fmt(r.total)}</td>
@@ -1157,7 +1254,10 @@ async function loadAdmin() {
   const unposted = d.reimbursements.filter(r => !r.postedAt).length;
   $('aTabs').querySelector('[data-at="reimb"] span').textContent = unposted ? `الاستعاضات (${unposted} لم تُرحَّل)` : 'الاستعاضات';
 }
-const JOB_GROUPS = [['الإدارة', 'الإدارة'], ['مدير منطقة', 'مدراء المناطق'], ['مشرف', 'المشرفين'], ['سائق', 'السائقين'], ['فني صيانة', 'فنيو الصيانة'], ['other', 'أخرى']];
+const JOB_GROUPS = [['مدير عمليات', 'مدير العمليات'], ['مدير منطقة', 'مدراء المناطق'], ['مشرف', 'المشرفين'], ['فني', 'الفنيين'], ['سائق', 'السائقين'], ['موظف إدارة', 'موظفو الإدارة'], ['other', 'غير محدد']];
+const JOBS6 = ['موظف إدارة', 'مدير عمليات', 'مدير منطقة', 'مشرف', 'سائق', 'فني'];
+const JOB_COL = { 'مدير عمليات': '#5B4BB7', 'مدير منطقة': '#B8202A', 'مشرف': '#0B6E4F', 'فني': '#C26A00', 'سائق': '#1F6FB2', 'موظف إدارة': '#4A5868', other: '#8A949E' };
+const jobTag = (j) => `<span class="jtag" style="--jc:${JOB_COL[jobKey(j)]}">${esc(jobKey(j) === 'other' ? (j || 'غير محدد') : j)}</span>`;
 const jobKey = (j) => JOB_GROUPS.some(g => g[0] === j) ? j : 'other';
 const jobLabel = (k) => (JOB_GROUPS.find(g => g[0] === k) || ['', 'أخرى'])[1];
 function jobOptions(list, withAll) {
@@ -1171,43 +1271,55 @@ function renderSupTbl() {
   const d = S.adm; if (!d) return;
   const q = ($('supQ').value || '').trim();
   S.jobF = S.jobF || '';
-  const cnt = (k) => d.employees.filter(e => jobKey(e.job) === k).length;
-  $('jobChips').innerHTML = `<button type="button" class="chip" data-job="" style="${!S.jobF ? 'background:var(--gl);border-color:var(--g)' : ''}">الكل (${d.employees.length})</button>` +
-    JOB_GROUPS.filter(([k]) => cnt(k)).map(([k, l]) => `<button type="button" class="chip" data-job="${k}" style="${S.jobF === k ? 'background:var(--gl);border-color:var(--g)' : ''}">${l} (${cnt(k)})</button>`).join('');
-  $('jobChips').querySelectorAll('[data-job]').forEach(b => b.addEventListener('click', () => { S.jobF = b.dataset.job; renderSupTbl(); }));
+  const cnt = (k) => d.employees.filter(e => jobKey(e.job) === k);
+  const card = (k, l, g) => `<button type="button" class="jobcard ${S.jobF === k ? 'on' : ''}" data-job="${k}" style="--jc:${k ? JOB_COL[k] : 'var(--g)'}"><span class="sub">${l}</span><b>${g.length}</b><span class="sub">عهد ${fmt(r2(g.reduce((t, e) => t + e.custody, 0)))}</span></button>`;
+  $('jobChips').innerHTML = card('', 'الكل', d.employees) + JOB_GROUPS.filter(([k]) => cnt(k).length).map(([k, l]) => card(k, l, cnt(k))).join('');
+  $('jobChips').querySelectorAll('[data-job]').forEach(b => b.addEventListener('click', () => { S.jobF = S.jobF === b.dataset.job ? '' : b.dataset.job; renderSupTbl(); }));
   const list = d.employees.filter(e => (!S.jobF || jobKey(e.job) === S.jobF) && (!q || e.name.includes(q) || String(e.username || '').toLowerCase().includes(q.toLowerCase())));
-  const mgrs = d.employees.filter(e => e.level === 'area' && e.id);
-  const row = (e) => `<tr><td>${esc(supName(e.name))}<div class="sub">${esc(jobKey(e.job) === 'other' ? (e.job || 'بدون وظيفة') : '')}</div></td>
+  const depts = (d.cfg && d.cfg.depts) || [];
+  const mgrOpts = (e) => '<option value="">—</option>' + JOB_GROUPS.map(([k, l]) => {
+    const g = d.employees.filter(m => m.id && m.id !== e.id && jobKey(m.job) === k); if (!g.length) return '';
+    return `<optgroup label="${esc(l)}">${g.map(m => `<option value="${esc(m.id)}" ${mgrMatch(e.mgr, m) ? 'selected' : ''}>${esc(supName(m.name))}</option>`).join('')}</optgroup>`;
+  }).join('');
+  const defCap = (j) => num(((d.cfg && d.cfg.caps) || {})[j]) || '';
+  const row = (e) => `<tr><td>${esc(supName(e.name))}<div class="sub">${e.dept ? esc(e.dept) : ''}</div></td>
       <td>${e.hasLogin ? '<span dir="ltr">' + esc(e.username) + '</span>' : '<span style="color:var(--warn)">بدون دخول</span>'}</td>
       <td>${fmt(e.custody)}</td><td>${fmt(e.spent)}<div class="sub">${e.openCount} مصروف</div></td>
-      <td style="font-weight:700;color:${e.balance < 0 ? 'var(--red)' : 'var(--g2)'}">${fmt(e.balance)}</td>
-      <td>${e.id ? `<select class="acc" data-id="${esc(e.id)}" data-k="role" aria-label="صلاحية ${esc(supName(e.name))}">${[['emp', 'موظف', 'موظف'], ['area', 'مدير منطقة', 'مدير منطقة'], ['ops', 'مدير عمليات', 'مدير عمليات']].map(([lv, v, l]) => `<option value="${v}" ${e.level === lv ? 'selected' : ''}>${l}</option>`).join('')}</select>` : ''}</td>
-      <td>${e.id && e.level !== 'ops' ? `<select class="acc" data-id="${esc(e.id)}" data-k="mgr" aria-label="مدير منطقة ${esc(supName(e.name))}"><option value="">—</option>${mgrs.filter(m => m.id !== e.id).map(m => `<option value="${esc(m.id)}" ${mgrMatch(e.mgr, m) ? 'selected' : ''}>${esc(supName(m.name))}</option>`).join('')}</select>` : ''}</td></tr>`;
-  let html = '<tr><th>الاسم</th><th>الدخول</th><th>رصيد الدفتر</th><th>بانتظار الاستعاضة</th><th>الرصيد</th><th>الصلاحية</th><th>مدير المنطقة</th></tr>';
+      <td style="font-weight:700;color:${e.balance < 0 ? 'var(--red)' : 'var(--g2)'}">${fmt(e.balance)}${e.cap && e.spent >= e.cap * 0.8 ? `<div class="sub" style="color:${e.spent >= e.cap ? 'var(--red)' : 'var(--warn)'}">${Math.round(e.spent / e.cap * 100)}% من السقف</div>` : ''}</td>
+      ${e.id ? `<td><select class="acc" data-id="${esc(e.id)}" data-k="job" aria-label="وظيفة ${esc(supName(e.name))}">${JOBS6.map(j => `<option ${e.job === j ? 'selected' : ''}>${j}</option>`).join('')}${JOBS6.includes(e.job) ? '' : `<option value="" selected>${esc(e.job || 'غير محدد')}</option>`}</select></td>
+      <td>${e.job === 'موظف إدارة' ? `<select class="acc" data-id="${esc(e.id)}" data-k="dept" aria-label="قسم ${esc(supName(e.name))}"><option value="">—</option>${depts.map(x => `<option ${e.dept === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select>` : '<span class="sub">—</span>'}</td>
+      <td>${e.job === 'مدير عمليات' ? '<span class="sub">—</span>' : `<select class="acc" data-id="${esc(e.id)}" data-k="mgr" aria-label="المدير المباشر لـ ${esc(supName(e.name))}">${mgrOpts(e)}</select>`}</td>
+      <td><input class="acc" type="number" min="0" step="100" data-id="${esc(e.id)}" data-k="cap" value="${e.capOwn === '' || e.capOwn == null ? '' : e.capOwn}" placeholder="${defCap(e.job) ? 'افتراضي ' + defCap(e.job) : 'بدون'}" aria-label="سقف عهدة ${esc(supName(e.name))}"></td>
+      <td><input class="acc" type="email" dir="ltr" data-id="${esc(e.id)}" data-k="email" value="${esc(e.email || '')}" placeholder="—" aria-label="إيميل ${esc(supName(e.name))}" style="min-width:170px"></td>` : '<td colspan="5"></td>'}</tr>`;
+  let html = '<tr><th>الاسم</th><th>الدخول</th><th>رصيد الدفتر</th><th>بانتظار الاستعاضة</th><th>الرصيد</th><th>الوظيفة</th><th>القسم</th><th>المدير المباشر</th><th>سقف العهدة</th><th>البريد</th></tr>';
   JOB_GROUPS.forEach(([k, l]) => {
     const g = list.filter(e => jobKey(e.job) === k).sort((a, b) => (b.hasLogin - a.hasLogin) || (a.balance - b.balance));
     if (!g.length) return;
     const tot = (f) => fmt(r2(g.reduce((t, e) => t + e[f], 0)));
-    html += `<tr><td colspan="7" style="background:var(--gl);color:var(--g2);font-weight:700">${l} <span class="sub">(${g.length})</span></td></tr>` + g.map(row).join('') +
-      `<tr style="font-weight:700"><td>إجمالي ${l}</td><td></td><td>${tot('custody')}</td><td>${tot('spent')}</td><td>${tot('balance')}</td><td></td><td></td></tr>`;
+    html += `<tr><td colspan="10" style="background:var(--gl);color:var(--g2);font-weight:700"><span class="jtag" style="--jc:${JOB_COL[k]};margin-left:6px">${g.length}</span>${l}</td></tr>` + g.map(row).join('') +
+      `<tr style="font-weight:700"><td>إجمالي ${l}</td><td></td><td>${tot('custody')}</td><td>${tot('spent')}</td><td>${tot('balance')}</td><td colspan="5"></td></tr>`;
   });
   $('empTbl').innerHTML = list.length ? html : '<tr><td class="sub">لا يوجد موظفين — استورد من دفتر العهد</td></tr>';
-  $('empTbl').querySelectorAll('select.acc').forEach(sel => sel.addEventListener('change', async () => {
-    sel.disabled = true;
+  $('empTbl').querySelectorAll('.acc').forEach(el => el.addEventListener('change', async () => {
+    const k = el.dataset.k, v = el.value;
+    el.disabled = true;
     try {
-      await api('setAccess', { id: sel.dataset.id, [sel.dataset.k]: sel.value });
-      const e = d.employees.find(x => x.id === sel.dataset.id);
-      if (sel.dataset.k === 'role') { e.level = { 'مدير منطقة': 'area', 'مدير عمليات': 'ops' }[sel.value] || 'emp'; }
-      else { const m = d.employees.find(x => x.id === sel.value); e.mgr = m ? m.name : ''; }
-      toast('تم الحفظ ✓'); renderSupTbl();
-    } catch (err) { toast(err.message); sel.disabled = false; }
+      await api('setEmp', { id: el.dataset.id, [k]: v });
+      const e = d.employees.find(x => x.id === el.dataset.id);
+      if (k === 'mgr') { const m = d.employees.find(x => x.id === v); e.mgr = m ? m.name : ''; }
+      else if (k === 'cap') { e.capOwn = v === '' ? '' : num(v); e.cap = num(v) || defCap(e.job) || 0; }
+      else if (k === 'job') { e.job = v || e.job; e.jobSet = v; e.cap = e.capOwn ? e.cap : (defCap(e.job) || 0); }
+      else e[k] = v;
+      toast('تم الحفظ ✓');
+      if (k === 'job' || k === 'mgr') { renderSupTbl(); } else el.disabled = false;
+    } catch (err) { toast(err.message); el.disabled = false; }
   }));
 }
 const normMgr = (s) => String(s || '').replace(/^\s*عهد[ةه]?\s+/, '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/\s+/g, '').trim().toLowerCase();
 const mgrMatch = (v, m) => String(v || '').split(/[،,]/).map(t => t.trim()).filter(Boolean).some(t => t === m.id || t.toLowerCase() === String(m.username || '').toLowerCase() || normMgr(t) === normMgr(m.name));
 $('supQ').addEventListener('input', renderSupTbl);
 
-/* ---------- تسجيل مشرف جديد ---------- */
+/* ---------- إنشاء حساب ---------- */
 $('toReg').addEventListener('click', async () => {
   $('regForm').classList.remove('hidden'); $('regDone').classList.add('hidden'); note($('regErr'), '', '');
   show('reg');
@@ -1260,8 +1372,13 @@ const topTag = (st) => st === 'تم الصرف' ? '<span class="tag">تم الص
 document.querySelectorAll('[data-home]').forEach(b => b.addEventListener('click', () => { renderHome(); show('home'); }));
 function renderLowBal() {
   const m = S.me; const pend = (m.topups || []).find(t => t.status === 'جديد');
-  $('lowBal').innerHTML = m.balance < LOW_BAL
+  let h = m.balance < LOW_BAL
     ? `<div class="note warn" style="margin:0 0 10px">${m.balance < 0 ? 'رصيدك بالسالب بمبلغ ' + fmt(Math.abs(m.balance)) : 'رصيدك منخفض: ' + fmt(m.balance)} ر.س${pend ? ' — طلب التعزيز ' + esc(pend.no) + ' تحت المراجعة' : ' — تقدر تطلب تعزيز للعهدة'}</div>` : '';
+  if (m.cap > 0 && m.spent >= m.cap * 0.8) {
+    const over = m.spent >= m.cap;
+    h += `<div class="note ${over ? 'err' : 'warn'}" style="margin:0 0 10px">${over ? 'تخطيت سقف العهدة' : 'قربت من سقف العهدة'}: مصروفات لم تُرحَّل ${fmt(m.spent)} من سقف ${fmt(m.cap)} ر.س (${Math.round(m.spent / m.cap * 100)}%)</div>`;
+  }
+  $('lowBal').innerHTML = h;
 }
 $('topBtn').addEventListener('click', () => {
   $('topBal').textContent = 'رصيدك الحالي ' + fmt(S.me.balance) + ' ر.س';
@@ -1343,6 +1460,7 @@ $('drawer').querySelectorAll('[data-go]').forEach(b => b.addEventListener('click
   else if (g === 'topup') $('topBtn').click();
   else if (g === 'month') $('monBtn').click();
   else if (g === 'settings') openSettings();
+  else if (g === 'req') openReq();
   else if (g === 'logout') logout();
 }));
 
@@ -1359,6 +1477,7 @@ applyMode(savedMode());
 
 function openSettings() {
   $('sPhone').value = (S.me && S.me.user.phone) || '';
+  $('sEmail').value = (S.me && S.me.user.email) || ''; note($('emailErr'), '', '');
   $('sUser').textContent = S.me ? S.me.user.username : '';
   S.brSel = new Set((S.me && S.me.user.myBranches) || []); $('brQ').value = ''; renderBrChecks(); note($('brErr'), '', '');
   ['pOld', 'pNew', 'pNew2'].forEach(i => $(i).value = ''); note($('pinErr'), '', ''); note($('phoneErr'), '', '');
@@ -1456,7 +1575,7 @@ function renderExp() {
     (!f.st || (f.st === 'open' ? isOpen(r) : f.st === 'appr' ? r.status === ST_APPR : r.status === ST_DONE)) &&
     (!f.k || (r.kind || 'فاتورة') === f.k) &&
     (!f.from || r.invDate >= f.from) && (!f.to || r.invDate <= f.to) &&
-    (!f.q || [r.desc, r.vendor, r.branch, r.invNo, r.id, r.vat, r.empName].join(' ').toLowerCase().includes(f.q))
+    (!f.q || [r.desc, r.vendor, r.branch, r.invNo, r.id, r.vat, r.empName, r.cat].join(' ').toLowerCase().includes(f.q))
   ).sort((a, b) => String(b.invDate).localeCompare(String(a.invDate)));
   const tot = r2(rows.reduce((a, r) => a + r.total, 0));
   $('eSum').innerHTML = `<div class="note ok">${rows.length} مصروف — الإجمالي ${fmt(tot)} ر.س</div>`;
@@ -1464,7 +1583,7 @@ function renderExp() {
     rows.map(r => `<tr class="${isOpen(r) ? '' : 'done'}">
       <td dir="ltr" style="white-space:nowrap">${esc(fmtD(r.invDate))}</td>
       <td>${esc(supName(r.empName))}</td>
-      <td>${esc(r.desc)}<div class="sub">${r.kind === 'مصروفات فرع' ? 'مصروفات فرع' + (r.upTo ? ' حتى ' + esc(fmtD(r.upTo)) : '') : esc(r.vendor) + (r.invNo ? ' · رقم ' + esc(r.invNo) : '')}</div></td>
+      <td>${r.cat ? '<span class="tag">' + esc(r.cat) + '</span> ' : ''}${esc(r.desc)}<div class="sub">${r.kind === 'مصروفات فرع' ? 'مصروفات فرع' + (r.upTo ? ' حتى ' + esc(fmtD(r.upTo)) : '') : esc(r.vendor) + (r.invNo ? ' · رقم ' + esc(r.invNo) : '')}</div></td>
       <td>${esc(r.branch || '')}</td>
       <td style="font-weight:700;white-space:nowrap">${fmt(r.total)}${r.tax ? '<div class="sub">ضريبة ' + fmt(r.tax) + '</div>' : ''}</td>
       <td style="white-space:nowrap">${esc(stLabel(r))}</td>
@@ -1835,10 +1954,11 @@ const Demo = {
     return d;
   },
   save(d) { store.set('ohda_demo', d); },
-  level(u) { return u.role === 'أدمن' ? 'admin' : u.role === 'مدير عمليات' ? 'ops' : (u.role === 'مدير منطقة' || ((!u.role || u.role === 'موظف') && u.job === 'مدير منطقة')) ? 'area' : 'emp'; },
+  level(u) { const d = store.get('ohda_demo') || { emps: [] }; return u.role === 'أدمن' ? 'admin' : (u.role === 'مدير عمليات' || u.job === 'مدير عمليات') ? 'ops' : (u.role === 'مدير منطقة' || u.job === 'مدير منطقة' || d.emps.some(e => e.mgr && e.mgr === u.name)) ? 'area' : 'emp'; },
+  cfg(d) { return Object.assign({ depts: ['المحاسبة', 'المشتريات', 'الموارد البشرية', 'تقنية المعلومات'], cats: { 'مشرف': ['خامات', 'نظافة', 'صيانة فرع', 'أخرى'], 'سائق': ['بنزين', 'صيانة سيارة', 'غسيل', 'أخرى'], 'فني': ['قطع غيار', 'أدوات', 'أخرى'], 'مدير منطقة': ['ضيافة', 'نقل', 'أخرى'], 'مدير عمليات': ['ضيافة', 'أخرى'], 'موظف إدارة': ['مستلزمات مكتبية', 'أخرى'] }, caps: {}, readOn: true }, d.cfg || {}); },
   user(d, token) { const u = d.emps.find(e => e.username === token); if (!u) throw new Error('سجّل الدخول أولاً'); return u; },
   validate(e) {
-    const o = { invNo: String(e.invNo || ''), invDate: String(e.invDate || ''), vendor: String(e.vendor || '').trim(), vat: String(e.vat || ''), net: r2(num(e.net)), tax: r2(num(e.tax)), desc: String(e.desc || '').trim(), branch: e.branch, source: e.source };
+    const o = { invNo: String(e.invNo || ''), invDate: String(e.invDate || ''), vendor: String(e.vendor || '').trim(), vat: String(e.vat || ''), net: r2(num(e.net)), tax: r2(num(e.tax)), desc: String(e.desc || '').trim(), branch: e.branch, source: e.source, cat: String(e.cat || '') };
     o.total = r2(o.net + o.tax);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(o.invDate)) throw new Error('تاريخ الفاتورة غير صحيح');
     if (!o.vendor) throw new Error('اكتب اسم المورد');
@@ -1867,7 +1987,8 @@ const Demo = {
         const spent = r2(mine.filter(e => e.status !== ST_DONE).reduce((s, e) => s + e.total, 0));
         const branches = (d.brs || []).concat(d.emps.map(e => e.branch)).filter((b, i, a) => b && a.indexOf(b) === i);
         u.myBranches = u.myBranches || [];
-        return { user: Object.assign({}, u, { level: Demo.level(u) }), custody: u.custody, spent, balance: r2(u.custody - spent), expenses: mine, branches, lastSync: d.lastSync || '', topups: (d.tops || []).filter(t => t.username === u.username).reverse() };
+        const cfg = this.cfg(d);
+        return { cats: cfg.cats[u.job] || cfg.cats['مشرف'], cap: num(u.cap) || num(cfg.caps[u.job]) || 0, reqCount: Demo.level(u) === 'ops' ? (d.reqs || []).filter(x => x.status === 'تحت الطلب').length : 0, user: Object.assign({}, u, { level: Demo.level(u) }), custody: u.custody, spent, balance: r2(u.custody - spent), expenses: mine, branches, lastSync: d.lastSync || '', topups: (d.tops || []).filter(t => t.username === u.username).reverse() };
       }
       case 'addExpense': {
         const u = this.user(d, r.token); const e = this.validate(r.expense); this.dup(d, e);
@@ -1887,9 +2008,9 @@ const Demo = {
         const employees = d.emps.filter(e => e.role !== 'أدمن' && e.active !== 'بانتظار الموافقة').map(e => {
           const open = d.exps.filter(x => x.username === e.username && x.status !== ST_DONE);
           const spent = r2(open.reduce((s, x) => s + x.total, 0));
-          return { name: e.name, username: e.username, branch: e.branch, supervisor: e.supervisor, custody: e.custody, spent, balance: r2(e.custody - spent), openCount: open.length, job: e.job || '', id: e.id || '', mgr: e.mgr || '', level: Demo.level(e) };
+          return { name: e.name, username: e.username, branch: e.branch, supervisor: e.supervisor, custody: e.custody, spent, balance: r2(e.custody - spent), openCount: open.length, job: e.job || '', id: e.id || '', mgr: e.mgr || '', level: Demo.level(e), dept: e.dept || '', email: e.email || '', capOwn: e.cap || '', cap: num(e.cap) || num(this.cfg(d).caps[e.job]) || 0 };
         });
-        return { employees: employees.map(e => Object.assign(e, { hasLogin: !!d.emps.find(x => x.username === e.username && x.username) })), supervisors: employees.map(e => e.supervisor).filter((s, i, a) => s && a.indexOf(s) === i), reimbursements: d.reimbs.slice().reverse(), lastSync: d.lastSync || '', pending, topups: (d.tops || []).slice().reverse(), brMap: d.brMap || [], branches: (d.brs || []).concat(d.emps.map(e => e.branch)).filter((b, i, a) => b && a.indexOf(b) === i) };
+        return { employees: employees.map(e => Object.assign(e, { hasLogin: !!d.emps.find(x => x.username === e.username && x.username) })), supervisors: employees.map(e => e.supervisor).filter((s, i, a) => s && a.indexOf(s) === i), reimbursements: d.reimbs.slice().reverse(), lastSync: d.lastSync || '', pending, topups: (d.tops || []).slice().reverse(), brMap: d.brMap || [], cfg: this.cfg(d), reqs: (d.reqs || []).slice().reverse(), branches: (d.brs || []).concat(d.emps.map(e => e.branch)).filter((b, i, a) => b && a.indexOf(b) === i) };
       }
       case 'exportData': {
         return { rows: d.exps.filter(x => (!r.supervisor || x.supervisor === r.supervisor) && (!r.username || x.username === r.username) && (!r.from || x.invDate >= r.from) && (!r.to || x.invDate <= r.to) && (!r.onlyOpen || isOpen(x))) };
@@ -1908,6 +2029,31 @@ const Demo = {
         d.brMap.forEach(b => { const p = String(b.sup || '').split('، ').filter(t => t && t !== e.name); if (r.branches.includes(b.name)) p.push(e.name); b.sup = p.join('، '); });
         this.save(d); return { count: r.branches.length };
       }
+      case 'setEmp': {
+        const e = d.emps.find(x => x.id === r.id); if (!e) throw new Error('الموظف غير موجود');
+        ['job', 'dept', 'cap', 'email'].forEach(k => { if (r[k] !== undefined) e[k] = r[k]; });
+        if (r.mgr !== undefined) { const m = d.emps.find(x => x.id === r.mgr); e.mgr = m ? m.name : ''; }
+        this.save(d); return { ok: true };
+      }
+      case 'setMyEmail': { const u = this.user(d, r.token); u.email = r.email; this.save(d); return { ok: true }; }
+      case 'cfgSet': { d.cfg = this.cfg(d); d.cfg[r.key] = r.value; this.save(d); return { cfg: this.cfg(d) }; }
+      case 'deptRename': { const c = this.cfg(d); c.depts = c.depts.map(x => x === r.from ? r.to : x); d.cfg = c; let n = 0; d.emps.forEach(e => { if (e.dept === r.from) { e.dept = r.to; n++; } }); this.save(d); return { cfg: c, moved: n }; }
+      case 'deptDel': { if (d.emps.some(e => e.dept === r.name)) throw new Error('القسم مربوط بموظفين'); const c = this.cfg(d); c.depts = c.depts.filter(x => x !== r.name); d.cfg = c; this.save(d); return { cfg: c }; }
+      case 'reqAdd': {
+        const u = this.user(d, r.token); d.reqs = d.reqs || [];
+        const no = 'REQ-' + String(d.reqs.length + 1).padStart(4, '0');
+        d.reqs.push({ no, date: new Date().toISOString().slice(0, 16).replace('T', ' '), username: u.username, name: u.name, job: u.job || '', subject: r.subject, details: r.details, amount: num(r.amount), hasAttach: !!r.image, status: 'تحت الطلب', note: '', decidedAt: '', decidedBy: '' });
+        this.save(d); return { no, mailed: 0, ops: d.emps.filter(e => Demo.level(e) === 'ops').map(e => ({ name: e.name, phone: e.phone || '0550000000' })) };
+      }
+      case 'reqList': { const u = this.user(d, r.token); const lv = Demo.level(u); const all = (d.reqs || []).slice().reverse(); return { canDecide: lv === 'ops', seeAll: lv === 'ops' || lv === 'admin', mine: all.filter(x => x.username === u.username), all: lv === 'ops' || lv === 'admin' ? all : [] }; }
+      case 'reqDecide': {
+        const u = this.user(d, r.token); if (Demo.level(u) !== 'ops') throw new Error('الاعتماد لمدير العمليات فقط');
+        const x = (d.reqs || []).find(y => y.no === r.no); if (!x || x.status !== 'تحت الطلب') throw new Error('تم اتخاذ قرار من قبل');
+        if (r.decision !== 'ok' && !r.note) throw new Error('اكتب سبب الرفض');
+        Object.assign(x, { status: r.decision === 'ok' ? 'معتمد' : 'مرفوض', note: r.note || '', decidedAt: new Date().toISOString().slice(0, 16).replace('T', ' '), decidedBy: u.name });
+        const emp = d.emps.find(e => e.username === x.username) || {}; this.save(d); return { no: x.no, status: x.status, mailed: 0, emp: { name: emp.name, phone: emp.phone || '0551112222' } };
+      }
+      case 'reqAttach': throw new Error('الوضع التجريبي: المرفقات غير محفوظة');
       case 'deleteExpense': {
         const u = this.user(d, r.token); const x = d.exps.find(e => e.id === r.id); if (!x) throw new Error('المصروف غير موجود');
         if (u.role !== 'أدمن' && x.username !== u.username) throw new Error('لا يمكنك حذف مصروف موظف آخر');
@@ -1970,6 +2116,155 @@ const Demo = {
     throw new Error('طلب غير معروف');
   }
 };
+
+/* ---------- البنود حسب الوظيفة ---------- */
+function jobOfUser(u) { const e = ((S.adm && S.adm.employees) || []).find(x => String(x.username).toLowerCase() === String(u).toLowerCase()); return e ? e.job : ''; }
+function fillCats(cur, job) {
+  let cats = (S.me && S.me.cats) || [];
+  if (job && S.adm && S.adm.cfg) cats = S.adm.cfg.cats[job] || cats;
+  if (isAdmin() && !job && S.adm && S.adm.cfg) cats = uniqA([].concat(...Object.values(S.adm.cfg.cats)));
+  const opts = cats.slice(); if (cur && !opts.includes(cur)) opts.unshift(cur);
+  $('fCat').innerHTML = '<option value="">— اختر البند —</option>' + opts.map(c => `<option ${c === cur ? 'selected' : ''}>${esc(c)}</option>`).join('');
+}
+const uniqA = (a) => a.filter((v, i) => v && a.indexOf(v) === i);
+
+/* ---------- طلبات الاعتماد ---------- */
+const waNum = (p) => { let d = String(p || '').replace(/\D/g, ''); if (d.startsWith('00')) d = d.slice(2); if (d.startsWith('05')) d = '966' + d.slice(1); else if (d.startsWith('5') && d.length === 9) d = '966' + d; return d; };
+const waLink = (p, text) => `https://wa.me/${waNum(p)}?text=${encodeURIComponent(text)}`;
+const rqSt = (st) => `<span class="st ${st === 'معتمد' ? 'st-ok' : st === 'مرفوض' ? 'st-no' : 'st-wait'}">${esc(st)}</span>`;
+function rqCard(x, opts) {
+  opts = opts || {};
+  return `<div class="rq"><div class="h"><div><b>${esc(x.no)} — ${esc(x.subject)}</b><div class="sub">${esc(supName(x.name))}${x.job ? ' · ' + esc(x.job) : ''} · <span dir="ltr">${esc(x.date)}</span></div></div>${rqSt(x.status)}</div>
+    <div style="font-size:14px;margin-top:8px;white-space:pre-wrap">${esc(x.details)}</div>
+    ${x.amount ? `<div class="sub" style="margin-top:6px">المبلغ: <b style="color:var(--ink)">${fmt(x.amount)} ر.س</b></div>` : ''}
+    ${x.hasAttach ? `<button type="button" class="mini link" data-ratt="${esc(x.no)}" style="min-height:36px">عرض المرفق</button>` : ''}
+    ${x.note || x.decidedBy ? `<div class="note ${x.status === 'مرفوض' ? 'err' : 'ok'}" style="margin-top:8px"><b>توصية ${esc(supName(x.decidedBy || 'مدير العمليات'))}:</b> ${esc(x.note || '—')}${x.decidedAt ? ` <span class="sub" dir="ltr">${esc(x.decidedAt)}</span>` : ''}</div>` : ''}
+    ${opts.decide && x.status === 'تحت الطلب' ? `<label class="f" for="rn-${esc(x.no)}">التوصية / الملاحظات</label><textarea id="rn-${esc(x.no)}" placeholder="اكتب توصيتك… (إجبارية عند الرفض)"></textarea>
+      <div class="two" style="margin-top:10px"><button type="button" class="btn" data-rdec="ok" data-no="${esc(x.no)}">اعتماد</button><button type="button" class="btn sec" data-rdec="no" data-no="${esc(x.no)}" style="color:var(--red)">رفض</button></div>` : ''}
+  </div>`;
+}
+function bindRq(root) {
+  root.querySelectorAll('[data-ratt]').forEach(b => b.addEventListener('click', async () => {
+    busy(b, true, '…');
+    try { const r = await api('reqAttach', { no: b.dataset.ratt }); $('imgEl').src = r.url; $('imgBox').classList.remove('hidden'); } catch (e) { toast(e.message); }
+    busy(b, false);
+  }));
+  root.querySelectorAll('[data-rdec]').forEach(b => b.addEventListener('click', async () => {
+    const no = b.dataset.no, okd = b.dataset.rdec === 'ok', noteTxt = $('rn-' + no).value.trim();
+    if (!okd && !noteTxt) return toast('اكتب سبب الرفض في خانة التوصية');
+    if (!confirm(`${okd ? 'اعتماد' : 'رفض'} الطلب ${no}؟`)) return;
+    busy(b, true, '…');
+    try {
+      const r = await api('reqDecide', { no, decision: b.dataset.rdec, note: noteTxt });
+      const x = S.rq.all.find(y => y.no === no) || {};
+      const msg = `طلبك ${no} (${x.subject || ''}) ${okd ? 'تم اعتماده ✅' : 'تم رفضه ❌'}${noteTxt ? '\nتوصية مدير العمليات: ' + noteTxt : ''}\n${location.origin + location.pathname}`;
+      S.rqNotice = { text: `تم ${okd ? 'اعتماد' : 'رفض'} الطلب ${no}${r.mailed ? ' — وصل إيميل للموظف' : ''}`, wa: r.emp && r.emp.phone ? [{ name: r.emp.name, link: waLink(r.emp.phone, msg) }] : [] };
+      await openReq(true);
+    } catch (e) { toast(e.message); busy(b, false); }
+  }));
+}
+async function openReq(keep) {
+  show('req');
+  $('v-req').querySelectorAll('.rqnote').forEach(x => x.remove());
+  if (!keep) { $('rqForm').reset(); note($('rqErr'), '', ''); }
+  $('rqList').innerHTML = '<div class="note ok">جارٍ التحميل…</div>';
+  try {
+    S.rq = await api('reqList');
+    S.rqTab = S.rqTab || 'all';
+    $('rqDecideCard').classList.toggle('hidden', !S.rq.canDecide);
+    const wait = S.rq.all.filter(x => x.status === 'تحت الطلب');
+    if (S.rq.canDecide) { $('rqWait').innerHTML = wait.map(x => rqCard(x, { decide: true })).join('') || '<div class="sub">لا توجد طلبات بانتظار قرارك ✓</div>'; bindRq($('rqWait')); }
+    renderRqList();
+    if (S.rqNotice) {
+      const n = S.rqNotice; S.rqNotice = null;
+      const box = document.createElement('div'); box.className = 'note ok rqnote'; box.style.margin = '0 0 12px';
+      box.innerHTML = esc(n.text) + n.wa.map(w => `<a class="btn wa" style="margin-top:10px;min-height:44px;text-decoration:none" target="_blank" rel="noopener" href="${esc(w.link)}">إرسال تنبيه واتساب لـ ${esc(supName(w.name))}</a>`).join('');
+      $('v-req').querySelector('header').after(box);
+    }
+  } catch (e) { note($('rqList'), 'err', e.message); }
+}
+function renderRqList() {
+  const src = S.rq.canDecide ? S.rq.all : S.rq.mine;
+  $('rqListH').textContent = S.rq.canDecide ? 'كل الطلبات' : 'طلباتي';
+  const tabs = [['all', 'الكل'], ['تحت الطلب', 'تحت الطلب'], ['معتمد', 'معتمدة'], ['مرفوض', 'مرفوضة']];
+  $('rqTabs').innerHTML = tabs.map(([k, l]) => `<button type="button" data-k="${k}" class="${S.rqTab === k ? 'on' : ''}">${l} (${src.filter(x => k === 'all' || x.status === k).length})</button>`).join('');
+  $('rqTabs').querySelectorAll('[data-k]').forEach(b => b.addEventListener('click', () => { S.rqTab = b.dataset.k; renderRqList(); }));
+  const list = src.filter(x => S.rqTab === 'all' || x.status === S.rqTab);
+  $('rqList').innerHTML = list.map(x => rqCard(x)).join('') || '<div class="sub">لا توجد طلبات</div>';
+  bindRq($('rqList'));
+}
+$('reqBtn').addEventListener('click', () => openReq());
+$('rqForm').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const b = ev.submitter || $('rqForm').querySelector('button[type=submit]'); busy(b, true, 'جارٍ الإرسال'); note($('rqErr'), '', '');
+  try {
+    let image = '';
+    const f = $('rqFile').files[0];
+    if (f) { const pages = isPdf(f) ? await pdfToImages(f, 1) : [await fileToImage(f)]; image = drawScaled(pages[0], 1400).toDataURL('image/jpeg', 0.72); }
+    const subject = $('rqSubj').value.trim(), details = $('rqDet').value.trim(), amount = num($('rqAmt').value);
+    const r = await api('reqAdd', { subject, details, amount, image });
+    const msg = `طلب اعتماد جديد ${r.no}\nمن: ${supName(S.me.user.name)}\nالموضوع: ${subject}\n${details}${amount ? '\nالمبلغ: ' + fmt(amount) + ' ر.س' : ''}\nللاعتماد: ${location.origin + location.pathname}`;
+    S.rqNotice = { text: `تم إرسال الطلب ${r.no} لمدير العمليات${r.mailed ? ' — ووصله إيميل' : ''}`, wa: (r.ops || []).filter(o => o.phone).map(o => ({ name: o.name, link: waLink(o.phone, msg) })) };
+    $('rqForm').reset();
+    await openReq(true);
+  } catch (e) { note($('rqErr'), 'err', e.message); }
+  busy(b, false);
+});
+
+/* ---------- لوحة الأدمن: طلبات الاعتماد + الإعدادات ---------- */
+function renderAdminReq() {
+  const d = S.adm; if (!d) return;
+  const all = d.reqs || [];
+  S.arqTab = S.arqTab || 'تحت الطلب';
+  const tabs = [['تحت الطلب', 'تحت الطلب'], ['معتمد', 'معتمدة'], ['مرفوض', 'مرفوضة'], ['all', 'الكل']];
+  $('arqTabs').innerHTML = tabs.map(([k, l]) => `<button type="button" data-k="${k}" class="${S.arqTab === k ? 'on' : ''}">${l} (${all.filter(x => k === 'all' || x.status === k).length})</button>`).join('');
+  $('arqTabs').querySelectorAll('[data-k]').forEach(b => b.addEventListener('click', () => { S.arqTab = b.dataset.k; renderAdminReq(); }));
+  const list = all.filter(x => S.arqTab === 'all' || x.status === S.arqTab);
+  $('arqList').innerHTML = list.map(x => rqCard(x)).join('') || '<div class="sub">لا توجد طلبات</div>';
+  bindRq($('arqList'));
+  const w = all.filter(x => x.status === 'تحت الطلب').length;
+  $('aTabs').querySelector('[data-at="req"] span').textContent = w ? `طلبات الاعتماد (${w})` : 'طلبات الاعتماد';
+}
+async function cfgSave(key, value, msg) {
+  try { const r = await api('cfgSet', { key, value }); S.adm.cfg = r.cfg; toast(msg || 'تم الحفظ ✓'); renderCfg(); renderSupTbl(); }
+  catch (e) { toast(e.message); }
+}
+function renderCfg() {
+  const d = S.adm; if (!d || !d.cfg) return;
+  const c = d.cfg;
+  const used = (x) => d.employees.filter(e => e.dept === x).length;
+  $('cfgDepts').innerHTML = c.depts.map(x => `<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><input value="${esc(x)}" data-old="${esc(x)}" aria-label="اسم القسم ${esc(x)}"><span class="sub" style="white-space:nowrap">${used(x)} موظف</span><button type="button" class="mini" data-dren="${esc(x)}" style="min-height:44px">حفظ الاسم</button><button type="button" class="mini" data-ddel="${esc(x)}" style="min-height:44px;color:var(--red)">حذف</button></div>`).join('');
+  $('cfgDepts').querySelectorAll('[data-dren]').forEach(b => b.addEventListener('click', async () => {
+    const inp = b.parentElement.querySelector('input'); const to = inp.value.trim(); if (to === b.dataset.dren) return;
+    try { const r = await api('deptRename', { from: b.dataset.dren, to }); S.adm.cfg = r.cfg; d.employees.forEach(e => { if (e.dept === b.dataset.dren) e.dept = to; }); toast(`تم تغيير الاسم${r.moved ? ' ونقل ' + r.moved + ' موظف' : ''} ✓`); renderCfg(); renderSupTbl(); }
+    catch (e) { toast(e.message); }
+  }));
+  $('cfgDepts').querySelectorAll('[data-ddel]').forEach(b => b.addEventListener('click', async () => {
+    if (!confirm(`حذف قسم «${b.dataset.ddel}»؟`)) return;
+    try { const r = await api('deptDel', { name: b.dataset.ddel }); S.adm.cfg = r.cfg; toast('تم الحذف ✓'); renderCfg(); renderSupTbl(); } catch (e) { toast(e.message); }
+  }));
+  const cj = $('cfgCatJob').value || JOBS6[3];
+  $('cfgCatJob').innerHTML = JOBS6.map(j => `<option ${j === cj ? 'selected' : ''}>${j}</option>`).join('');
+  const cats = c.cats[cj] || [];
+  $('cfgCats').innerHTML = cats.map(x => `<button type="button" class="chip on" data-crm="${esc(x)}" aria-label="حذف بند ${esc(x)}">${esc(x)} ✕</button>`).join('') || '<span class="sub">لا توجد بنود</span>';
+  $('cfgCats').querySelectorAll('[data-crm]').forEach(b => b.addEventListener('click', () => { const o = JSON.parse(JSON.stringify(c.cats)); o[cj] = (o[cj] || []).filter(x => x !== b.dataset.crm); cfgSave('cats', o, 'تم حذف البند ✓'); }));
+  $('cfgCaps').innerHTML = JOBS6.map(j => `<div><label class="f" for="cap-${j}">${j}</label><input id="cap-${j}" data-j="${j}" type="number" min="0" step="100" dir="ltr" value="${c.caps[j] || ''}" placeholder="بدون سقف"></div>`).join('');
+  $('cfgRead').checked = c.readOn !== false;
+  const m = savedMode(); $('cfgMode').querySelectorAll('[data-mode]').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
+}
+$('cfgCatJob').addEventListener('change', renderCfg);
+$('cfgAddDept').addEventListener('click', () => { const v = $('cfgNewDept').value.trim(); if (!v) return; $('cfgNewDept').value = ''; cfgSave('depts', S.adm.cfg.depts.concat([v]), 'تمت إضافة الإدارة ✓'); });
+$('cfgAddCat').addEventListener('click', () => { const v = $('cfgNewCat').value.trim(); if (!v) return; const j = $('cfgCatJob').value; const o = JSON.parse(JSON.stringify(S.adm.cfg.cats)); o[j] = (o[j] || []).concat([v]); $('cfgNewCat').value = ''; cfgSave('cats', o, 'تمت إضافة البند ✓'); });
+$('cfgSaveCaps').addEventListener('click', () => { const o = {}; $('cfgCaps').querySelectorAll('input').forEach(i => { if (num(i.value) > 0) o[i.dataset.j] = num(i.value); }); cfgSave('caps', o, 'تم حفظ السقف ✓'); });
+$('cfgRead').addEventListener('change', () => cfgSave('readOn', $('cfgRead').checked, $('cfgRead').checked ? 'القراءة التلقائية مفعّلة ✓' : 'تم إيقاف القراءة التلقائية'));
+$('cfgMode').querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { store.set('ohda_mode', b.dataset.mode); applyMode(b.dataset.mode); renderCfg(); }));
+$('emailForm').addEventListener('submit', async (ev) => {
+  ev.preventDefault(); note($('emailErr'), '', '');
+  const b = ev.submitter || $('emailForm').querySelector('button'); busy(b, true, 'جارٍ الحفظ');
+  try { await api('setMyEmail', { email: $('sEmail').value.trim() }); S.me.user.email = $('sEmail').value.trim(); note($('emailErr'), 'ok', 'تم حفظ البريد ✓'); }
+  catch (e) { note($('emailErr'), 'err', e.message); }
+  busy(b, false);
+});
 
 try { $('loginLogo').src = LOGO; } catch (e) {}
 boot();
