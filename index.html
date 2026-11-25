@@ -410,6 +410,7 @@ body.dark .balance{background:#0B5A41}
       <h2>فروعي</h2>
       <p class="sub" style="margin:0 0 8px">الفروع المحددة من الإدارة تظهر أولاً — وتقدر تضيف عليها فروع تانية انت مسؤول عنها</p>
       <input id="brQ" placeholder="بحث عن فرع…" style="margin-bottom:8px" aria-label="بحث عن فرع">
+      <div class="sub" id="brTakenNote" style="margin:-2px 0 6px"></div>
       <div id="brChecks" style="max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:12px;padding:4px 10px"></div>
       <div id="brErr"></div>
       <button class="btn sec" style="margin-top:12px" type="button" id="brSave">حفظ فروعي</button>
@@ -1544,7 +1545,10 @@ function renderBrChecks() {
   const q = $('brQ').value.trim(); S.brSel = S.brSel || new Set();
   const all = (S.me && S.me.branches) || [];
   const fixed = (S.me && S.me.user.assignedBranches) || [];
-  const ordered = fixed.concat(all.filter(b => fixed.indexOf(b) === -1));
+  const taken = (S.me && S.me.taken) || {};
+  const ordered = fixed.concat(all.filter(b => fixed.indexOf(b) === -1 && (!taken[b] || S.brSel.has(b))));
+  const hidden = all.filter(b => taken[b] && fixed.indexOf(b) === -1 && !S.brSel.has(b)).length;
+  $('brTakenNote').textContent = hidden ? `${hidden} فرع مختارين عند زملائك ومش ظاهرين هنا` : '';
   $('brChecks').innerHTML = ordered.filter(b => !q || b.includes(q)).map(b => { const f = fixed.indexOf(b) !== -1; return `<label style="display:flex;align-items:center;gap:10px;min-height:44px;border-bottom:1px solid var(--line);font-size:14px">
     <input type="checkbox" value="${esc(b)}" ${f || S.brSel.has(b) ? 'checked' : ''} ${f ? 'disabled' : ''} style="width:20px;height:20px">${esc(b)}${f ? ' <span class="tag" style="margin-inline-start:auto">من الإدارة</span>' : ''}</label>`; }).join('') || '<div class="sub" style="padding:10px 0">لا توجد فروع — اطلب من الإدارة إضافتها</div>';
   $('brChecks').querySelectorAll('input').forEach(c => c.addEventListener('change', () => { c.checked ? S.brSel.add(c.value) : S.brSel.delete(c.value); }));
