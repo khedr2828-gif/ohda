@@ -76,6 +76,10 @@ header.bar{display:flex;align-items:center;justify-content:space-between;gap:12p
 header.bar h1{margin:0;font-size:20px;line-height:28px;text-wrap:balance}
 .sub{font-size:13px;color:var(--mut)}
 .sbox{position:relative}
+.permgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px 12px;margin:4px 0 8px}
+.permgrid label{display:flex;align-items:center;gap:8px;min-height:40px;font-size:14px;cursor:pointer}
+.permgrid input{width:18px;height:18px}
+.sitem{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--soft)}
 .slist{position:absolute;z-index:30;left:0;right:0;top:52px;background:var(--card);border:1px solid var(--line2);border-radius:12px;max-height:300px;overflow:auto;box-shadow:var(--sh2)}
 .slist button{display:flex;justify-content:space-between;gap:8px;width:100%;text-align:right;padding:12px 16px;border:0;border-bottom:1px solid var(--soft);background:none;font:inherit;font-size:16px;color:var(--ink);cursor:pointer}
 .slist button:hover,.slist button:focus{background:var(--gl);outline:none}
@@ -530,7 +534,7 @@ body.dark .balance{background:#0B5A41}
   <!-- ============ الأدمن ============ -->
   <section id="v-admin" class="hidden">
     <header class="bar">
-      <div><div class="sub">لوحة الأدمن</div><h1 id="aName"></h1></div>
+      <div><div class="sub" id="aRole">لوحة الأدمن</div><h1 id="aName"></h1></div>
       <div style="display:flex;gap:8px">
         <button class="iconbtn" id="aRefresh" aria-label="تحديث"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg></button>
         <button class="iconbtn" data-logout aria-label="خروج"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>
@@ -608,7 +612,7 @@ body.dark .balance{background:#0B5A41}
       <div class="card">
         <h2>ربط المشرف بفروعه</h2>
         <p class="sub" id="lkStat" style="margin:-4px 0 10px"></p>
-        <label class="f" for="lkFind" style="margin-top:0">المشرف</label>
+        <label class="f" for="lkFind" style="margin-top:0">المشرف <span class="sub" id="lkSupN"></span></label>
         <div class="sbox"><input id="lkFind" type="search" placeholder="اكتب أي حرف من اسم المشرف…" autocomplete="off"><div id="lkList" class="slist hidden" role="listbox"></div></div>
         <div id="lkBox" class="hidden">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px"><b id="lkName"></b><span class="sub" id="lkCnt"></span></div>
@@ -638,6 +642,29 @@ body.dark .balance{background:#0B5A41}
     </div>
 
     <div class="apane hidden" data-pane="cfg">
+      <div class="card hidden" id="subCard">
+        <h2>المستخدمين الإداريين</h2>
+        <p class="sub" style="margin:-4px 0 10px">حساب بمهام زي الأدمن — إنت بتحدد صلاحياته. بيدخل بنفس صفحة الدخول ويشوف بس الأقسام المسموحة له</p>
+        <div id="subList"></div>
+        <button class="btn sec" type="button" id="subNew" style="margin-top:10px">+ مستخدم إداري جديد</button>
+        <div id="subForm" class="hidden" style="margin-top:12px;border-top:1px solid var(--line);padding-top:12px">
+          <input type="hidden" id="sfId">
+          <div class="two">
+            <div><label class="f" for="sfName">الاسم</label><input id="sfName" placeholder="الاسم الكامل"></div>
+            <div><label class="f" for="sfUser">اسم الدخول (إنجليزي)</label><input id="sfUser" dir="ltr" autocomplete="off" placeholder="مثال: sara"></div>
+          </div>
+          <div class="two">
+            <div><label class="f" for="sfPin" id="sfPinL">الرمز السري المبدئي</label><input id="sfPin" type="password" autocomplete="new-password" inputmode="numeric"></div>
+            <div><label class="f" for="sfPhone">الجوال (اختياري)</label><input id="sfPhone" dir="ltr" inputmode="tel"></div>
+          </div>
+          <label class="f" for="sfEmail">البريد الإلكتروني (اختياري)</label><input id="sfEmail" dir="ltr" type="email">
+          <label class="f">الصلاحيات</label>
+          <div id="sfPerms" class="permgrid"></div>
+          <label class="switch"><span>الحساب نشط</span><input type="checkbox" id="sfActive" checked></label>
+          <div style="display:flex;gap:8px;margin-top:10px"><button class="btn" type="button" id="sfSave">حفظ</button><button class="btn sec" type="button" id="sfCancel">إلغاء</button></div>
+          <div id="sfErr"></div>
+        </div>
+      </div>
       <div class="card">
         <h2>الأقسام</h2>
         <p class="sub" style="margin:-4px 0 10px">أقسام الإدارة — تعديل الاسم ينقل الموظفين المربوطين بالقسم تلقائياً</p>
@@ -849,7 +876,18 @@ async function readNow() {
 }
 
 /* ===================== الشاشات ===================== */
-const isAdmin = () => S.me && S.me.user && S.me.user.role === 'أدمن';
+const isAdmin = () => S.me && S.me.user && (S.me.user.role === 'أدمن' || S.me.user.role === 'مستخدم إداري');
+const isMain = () => S.me && S.me.user && S.me.user.role === 'أدمن';
+const can = (p) => isMain() || [].concat(p).some(x => ((S.me && S.me.user.perms) || []).includes(x));
+const TAB_PERM = { exp: ['exp', 'edit'], settle: ['settle'], sup: ['emps'], br: ['br'], req: ['req'], cfg: ['cfg'], reimb: ['reimb', 'post'] };
+function applyPerms() {
+  let first = null;
+  $('aTabs').querySelectorAll('[data-at]').forEach(b => { const ok = can(TAB_PERM[b.dataset.at] || []); b.classList.toggle('hidden', !ok); if (ok && !first) first = b; });
+  const on = $('aTabs').querySelector('[data-at].on');
+  if (first && (!on || on.classList.contains('hidden'))) first.click();
+  $('subCard').classList.toggle('hidden', !isMain());
+  $('aRole').textContent = isMain() ? 'لوحة الأدمن' : 'مستخدم إداري';
+}
 function show(v) {
   ['login', 'reg', 'home', 'form', 'admin', 'topup', 'month', 'settings', 'team', 'req'].forEach(x => $('v-' + x).classList.toggle('hidden', x !== v));
   document.querySelector('.app').classList.toggle('wide', v === 'admin' || v === 'team');
@@ -866,7 +904,7 @@ async function boot() {
 
 async function loadMe() {
   S.me = await api('me');
-  if (S.me.user.role === 'أدمن') { await loadAdmin(); show('admin'); loadAllExp(); }
+  if (isAdmin()) { await loadAdmin(); show('admin'); applyPerms(); if (can(['exp', 'edit', 'settle', 'reimb'])) loadAllExp(); }
   else { renderHome(); show('home'); }
 }
 
@@ -1109,13 +1147,14 @@ $('formBack').addEventListener('click', backFromForm);
 
 /* ---------- ربط المشرف بفروعه ---------- */
 const brOwner = (b, e) => String(b.sup || '').split(/[،,]/).map(t => t.trim()).filter(Boolean).some(t => mgrMatch(t, e));
-function linkEmps() { return ((S.adm && S.adm.employees) || []).filter(e => e.id); }
+function linkEmps() { return ((S.adm && S.adm.employees) || []).filter(e => e.id && e.job === 'مشرف'); }
 function renderLink() {
   const d = S.adm; if (!d) return;
   const map = d.brMap || [];
   const free = map.filter(b => !String(b.sup || '').trim());
   $('lkStat').textContent = `${map.length} فرع — ${map.length - free.length} مربوط بمشرف`;
   $('lkFreeN').textContent = `(${free.length})`;
+  $('lkSupN').textContent = `(${linkEmps().length} مشرف — الوظيفة «مشرف» من تبويب الموظفين)`;
   $('lkFree').innerHTML = free.map(b => `<span class="chip" style="cursor:default">${esc(b.name)}</span>`).join('') || '<span class="sub">كل الفروع مربوطة ✓</span>';
   const e = linkEmps().find(x => x.id === S.lkId);
   $('lkBox').classList.toggle('hidden', !e);
@@ -1154,7 +1193,7 @@ async function saveLink(branches) {
 function renderLinkFind() {
   const q = normAr($('lkFind').value.trim());
   const map = (S.adm && S.adm.brMap) || [];
-  const list = linkEmps().filter(e => !q || normAr(e.name).includes(q)).slice(0, 12);
+  const list = linkEmps().filter(e => !q || normAr(e.name).includes(q)).sort((a, b) => supName(a.name).localeCompare(supName(b.name), 'ar'));
   $('lkList').innerHTML = list.map(e => { const n = map.filter(b => brOwner(b, e)).length;
     return `<button type="button" data-id="${esc(e.id)}">${esc(supName(e.name))}<span class="sub"> — ${esc(e.job || '')}${n ? ' · ' + n + ' فرع' : ''}</span></button>`; }).join('') || '<div class="sub" style="padding:10px">لا يوجد</div>';
   $('lkList').classList.remove('hidden');
@@ -1294,7 +1333,7 @@ async function loadAdmin() {
   $('lastSync').textContent = d.ledger ? 'الأرصدة تُقرأ مباشرة من دفتر العهد على جوجل' + (d.lastSync ? ' · آخر استيراد: ' + d.lastSync : '') : (d.lastSync ? 'آخر تحديث: ' + d.lastSync : 'لم يتم التحديث من الإكسل بعد');
   $('reimbTbl').innerHTML = '<tr><th>الرقم</th><th>التاريخ</th><th>المشرف</th><th>العدد</th><th>الإجمالي</th><th>الترحيل</th></tr>' +
     (d.reimbursements.map(r => `<tr><td>${esc(r.no)}</td><td dir="ltr">${esc(fmtD(r.date))}</td><td>${esc(supName(r.supervisor))}</td><td>${r.count}</td><td>${fmt(r.total)}</td>
-      <td>${r.postedAt ? '<span class="tag done">مُرحّل ' + esc(fmtD(r.postedAt)) + '</span>' : `<button type="button" class="mini" data-post="${esc(r.no)}" style="background:var(--g);color:#fff;border-color:var(--g)">ترحيل</button>`}</td></tr>`).join('') || '<tr><td colspan="6" class="sub">لا توجد استعاضات بعد</td></tr>');
+      <td>${r.postedAt ? '<span class="tag done">مُرحّل ' + esc(fmtD(r.postedAt)) + '</span>' : !can('post') ? '<span class="sub">لم يُرحَّل</span>' : `<button type="button" class="mini" data-post="${esc(r.no)}" style="background:var(--g);color:#fff;border-color:var(--g)">ترحيل</button>`}</td></tr>`).join('') || '<tr><td colspan="6" class="sub">لا توجد استعاضات بعد</td></tr>');
   $('reimbTbl').querySelectorAll('[data-post]').forEach(b => b.addEventListener('click', async () => {
     if (!confirm(`ترحيل الاستعاضة ${b.dataset.post} لورقة «الترحيل»؟ بعدها تخرج فواتيرها من حساب رصيد المشرف ولا يمكن تعديلها.`)) return;
     try { const r = await api('markPosted', { no: b.dataset.post }); toast(`تم ترحيل ${r.count} مصروف لورقة «الترحيل» ✓`); await loadAdmin(); S.allExp = null; }
@@ -1602,7 +1641,7 @@ function renderTopAdmin() {
 $('aTabs').querySelectorAll('[data-at]').forEach(b => b.addEventListener('click', () => {
   $('aTabs').querySelectorAll('[data-at]').forEach(x => x.classList.toggle('on', x === b));
   document.querySelectorAll('#v-admin .apane').forEach(p => p.classList.toggle('hidden', p.dataset.pane !== b.dataset.at));
-  if (b.dataset.at === 'exp' && !S.allExp) loadAllExp();
+  if (b.dataset.at === 'exp' && !S.allExp && S.adm) loadAllExp();
   renderSubNav();
 }));
 
@@ -1652,7 +1691,7 @@ function renderExp() {
       <td style="font-weight:700;white-space:nowrap">${fmt(r.total)}${r.tax ? '<div class="sub">ضريبة ' + fmt(r.tax) + '</div>' : ''}</td>
       <td style="white-space:nowrap">${stTag(r)}</td>
       <td>${r.image && /^https?:/.test(r.image) ? `<a class="mini" href="${esc(r.image)}" target="_blank" rel="noopener">عرض</a>` : '<span class="sub">—</span>'}</td>
-      <td style="white-space:nowrap">${r.status === ST_DONE ? '' : `<button type="button" class="mini" data-edit="${esc(r.id)}">تصحيح</button>`}${isOpen(r) ? ` <button type="button" class="mini" data-del="${esc(r.id)}" style="color:var(--red)">حذف</button>` : ''}</td></tr>`).join('');
+      <td style="white-space:nowrap">${r.status === ST_DONE || !can('edit') ? '' : `<button type="button" class="mini" data-edit="${esc(r.id)}">تصحيح</button>`}${isOpen(r) && can('edit') ? ` <button type="button" class="mini" data-del="${esc(r.id)}" style="color:var(--red)">حذف</button>` : ''}</td></tr>`).join('');
   $('eTbl').querySelectorAll('[data-edit]').forEach(b => b.addEventListener('click', () => openForm(S.allExp.find(x => x.id === b.dataset.edit))));
   $('eTbl').querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', () => deleteExp(S.allExp.find(x => x.id === b.dataset.del), b)));
 }
@@ -2067,19 +2106,31 @@ const Demo = {
         const e = this.validate(r.expense); this.dup(d, e, x.id); Object.assign(x, e); this.save(d); return { id: x.id };
       }
       case 'adminData': {
-        const a = this.user(d, r.token); if (a.role !== 'أدمن') throw new Error('هذه العملية للأدمن فقط');
+        const a = this.user(d, r.token); if (a.role !== 'أدمن' && a.role !== 'مستخدم إداري') throw new Error('هذه العملية للأدمن فقط');
         const pending = d.emps.filter(e => e.active === 'بانتظار الموافقة').map(e => ({ id: e.id, name: e.name, username: e.username, phone: e.phone || '', regAt: e.regAt || '', custody: e.custody }));
         const employees = d.emps.filter(e => e.role !== 'أدمن' && e.active !== 'بانتظار الموافقة').map(e => {
           const open = d.exps.filter(x => x.username === e.username && x.status !== ST_DONE);
           const spent = r2(open.reduce((s, x) => s + x.total, 0));
           return { name: e.name, username: e.username, branch: e.branch, supervisor: e.supervisor, custody: e.custody, spent, balance: r2(e.custody - spent), openCount: open.length, job: e.job || '', id: e.id || '', mgr: e.mgr || '', level: Demo.level(e), dept: e.dept || '', email: e.email || '', capOwn: e.cap || '', cap: num(e.cap) || num(this.cfg(d).caps[e.job]) || 0 };
         });
-        return { employees: employees.map(e => Object.assign(e, { hasLogin: !!d.emps.find(x => x.username === e.username && x.username) })), supervisors: employees.map(e => e.supervisor).filter((s, i, a) => s && a.indexOf(s) === i), reimbursements: d.reimbs.slice().reverse(), lastSync: d.lastSync || '', pending, topups: (d.tops || []).slice().reverse(), brMap: d.brMap || [], cfg: this.cfg(d), reqs: (d.reqs || []).slice().reverse(), branches: (d.brs || []).concat(d.emps.map(e => e.branch)).filter((b, i, a) => b && a.indexOf(b) === i) };
+        const PL = [['exp', 'مراجعة المصروفات'], ['edit', 'تصحيح وحذف الفواتير'], ['settle', 'تصفية العهدة (اعتماد استعاضة)'], ['post', 'ترحيل الاستعاضات'], ['reimb', 'الاستعاضات والتصدير'], ['emps', 'الموظفين والحسابات'], ['br', 'ربط الفروع'], ['req', 'الطلبات'], ['cfg', 'الإعدادات']];
+        const subs = a.role === 'أدمن' ? d.emps.filter(e => e.role === 'مستخدم إداري').map(e => ({ id: e.id, name: e.name, username: e.username, phone: e.phone || '', email: e.email || '', perms: e.perms || [], active: e.active !== 'لا' })) : [];
+        return { isMain: a.role === 'أدمن', permList: PL, subs, employees: employees.filter(e => e.level !== 'admin' && !(d.emps.find(x => x.username === e.username && e.username) || {}).perms).map(e => Object.assign(e, { hasLogin: !!d.emps.find(x => x.username === e.username && x.username) })), supervisors: employees.map(e => e.supervisor).filter((s, i, a) => s && a.indexOf(s) === i), reimbursements: d.reimbs.slice().reverse(), lastSync: d.lastSync || '', pending, topups: (d.tops || []).slice().reverse(), brMap: d.brMap || [], cfg: this.cfg(d), reqs: (d.reqs || []).slice().reverse(), branches: (d.brs || []).concat(d.emps.map(e => e.branch)).filter((b, i, a) => b && a.indexOf(b) === i) };
       }
       case 'exportData': {
         return { rows: d.exps.filter(x => (!r.supervisor || x.supervisor === r.supervisor) && (!r.username || x.username === r.username) && (!r.from || x.invDate >= r.from) && (!r.to || x.invDate <= r.to) && (!r.onlyOpen || isOpen(x))) };
       }
       case 'readInvoice': return { enabled: false };
+      case 'subSave': {
+        const a = this.user(d, r.token); if (a.role !== 'أدمن') throw new Error('هذه العملية للأدمن الرئيسي فقط');
+        let u = r.id && d.emps.find(e => e.id === r.id);
+        if (!u) { const un = String(r.username || '').trim().toLowerCase(); if (!/^[a-z0-9._]{3,30}$/.test(un)) throw new Error('اسم الدخول بالإنجليزي من 3 أحرف على الأقل');
+          if (d.emps.some(e => e.username === un)) throw new Error('اسم الدخول مستخدم من قبل'); if (!r.pin) throw new Error('اكتب رمز سري مبدئي');
+          u = { id: 'A' + (d.emps.length + 1), username: un, role: 'مستخدم إداري', custody: 0 }; d.emps.push(u); }
+        if (!String(r.name || '').trim()) throw new Error('اكتب الاسم');
+        Object.assign(u, { name: r.name, phone: r.phone, email: r.email, perms: r.perms || [], active: r.active === false ? 'لا' : 'نعم' }); if (r.pin) u.pin = r.pin;
+        this.save(d); return { subs: d.emps.filter(e => e.role === 'مستخدم إداري').map(e => ({ id: e.id, name: e.name, username: e.username, phone: e.phone || '', email: e.email || '', perms: e.perms || [], active: e.active !== 'لا' })) };
+      }
       case 'teamData': {
         const u = this.user(d, r.token); const lv = Demo.level(u); if (lv === 'emp') throw new Error('ليس لديك صلاحية عرض مصروفات الفريق');
         const team = d.emps.filter(e => e.role !== 'أدمن' && (lv === 'ops' || e.mgr === u.name || e.username === u.username));
@@ -2299,8 +2350,37 @@ async function cfgSave(key, value, msg) {
   try { const r = await api('cfgSet', { key, value }); S.adm.cfg = r.cfg; toast(msg || 'تم الحفظ ✓'); renderCfg(); renderSupTbl(); }
   catch (e) { toast(e.message); }
 }
+function renderSubs() {
+  const d = S.adm; if (!d || !d.isMain) return;
+  const lbl = Object.fromEntries(d.permList || []);
+  $('subList').innerHTML = (d.subs || []).map(u => `<div class="sitem"><div><b>${esc(u.name)}</b> <span class="sub" dir="ltr">${esc(u.username)}</span>${u.active ? '' : ' <span class="tag">موقوف</span>'}
+    <div class="sub" style="margin-top:4px">${u.perms.length ? u.perms.map(p => esc(lbl[p] || p)).join(' · ') : 'بدون صلاحيات'}</div></div>
+    <button type="button" class="mini" data-sedit="${esc(u.id)}" style="min-height:40px">تعديل</button></div>`).join('') || '<div class="sub">لا يوجد مستخدمين إداريين بعد</div>';
+  $('subList').querySelectorAll('[data-sedit]').forEach(b => b.addEventListener('click', () => subOpen((d.subs || []).find(x => x.id === b.dataset.sedit))));
+}
+function subOpen(u) {
+  const d = S.adm;
+  $('subForm').classList.remove('hidden'); note($('sfErr'), '', '');
+  $('sfId').value = u ? u.id : ''; $('sfName').value = u ? u.name : ''; $('sfUser').value = u ? u.username : ''; $('sfUser').disabled = !!u;
+  $('sfPin').value = ''; $('sfPinL').textContent = u ? 'رمز سري جديد (اتركه فاضي لو مش هتغيّره)' : 'الرمز السري المبدئي';
+  $('sfPhone').value = u ? u.phone : ''; $('sfEmail').value = u ? u.email : ''; $('sfActive').checked = u ? u.active : true;
+  $('sfPerms').innerHTML = (d.permList || []).map(([k, l]) => `<label><input type="checkbox" value="${k}" ${u && u.perms.includes(k) ? 'checked' : ''}>${esc(l)}</label>`).join('');
+  $('sfName').focus();
+}
+$('subNew').addEventListener('click', () => subOpen(null));
+$('sfCancel').addEventListener('click', () => $('subForm').classList.add('hidden'));
+$('sfSave').addEventListener('click', async () => {
+  const b = $('sfSave'); busy(b, true, 'جارٍ الحفظ');
+  try {
+    const r = await api('subSave', { id: $('sfId').value, name: $('sfName').value, username: $('sfUser').value, pin: $('sfPin').value, phone: $('sfPhone').value, email: $('sfEmail').value,
+      active: $('sfActive').checked, perms: [...$('sfPerms').querySelectorAll('input:checked')].map(x => x.value) });
+    S.adm.subs = r.subs; renderSubs(); $('subForm').classList.add('hidden'); toast('تم الحفظ ✓');
+  } catch (e) { note($('sfErr'), 'err', e.message); }
+  busy(b, false);
+});
 function renderCfg() {
   const d = S.adm; if (!d || !d.cfg) return;
+  renderSubs();
   const c = d.cfg;
   const used = (x) => d.employees.filter(e => e.dept === x).length;
   $('cfgDepts').innerHTML = c.depts.map(x => `<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><input value="${esc(x)}" data-old="${esc(x)}" aria-label="اسم القسم ${esc(x)}"><span class="sub" style="white-space:nowrap">${used(x)} موظف</span><button type="button" class="mini" data-dren="${esc(x)}" style="min-height:44px">حفظ الاسم</button><button type="button" class="mini" data-ddel="${esc(x)}" style="min-height:44px;color:var(--red)">حذف</button></div>`).join('');
